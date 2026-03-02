@@ -1,7 +1,8 @@
 import { Account } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
-
+require('dotenv').config()
+;
 import { getPrismaClient } from "@/configs";
 import { ApiError } from "@/errors";
 
