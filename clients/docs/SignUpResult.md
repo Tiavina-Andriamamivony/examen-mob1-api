@@ -2,10 +2,10 @@
 
 ## Properties
 
-| Name       | Type   |
-| ---------- | ------ |
-| `id`       | string |
-| `username` | string |
+| Name    | Type   |
+| ------- | ------ |
+| `id`    | string |
+| `email` | string |
 
 ## Example
 
@@ -15,7 +15,7 @@ import type { SignUpResult } from "";
 // TODO: Update the object below with actual values
 const example = {
   id: null,
-  username: null,
+  email: null,
 } satisfies SignUpResult;
 
 console.log(example);

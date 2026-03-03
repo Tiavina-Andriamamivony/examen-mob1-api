@@ -4,7 +4,7 @@
 
 | Name       | Type   |
 | ---------- | ------ |
-| `username` | string |
+| `email`    | string |
 | `password` | string |
 
 ## Example
@@ -14,7 +14,7 @@ import type { Credentials } from "";
 
 // TODO: Update the object below with actual values
 const example = {
-  username: null,
+  email: null,
   password: null,
 } satisfies Credentials;
 

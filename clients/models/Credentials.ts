@@ -24,7 +24,7 @@ export interface Credentials {
    * @type {string}
    * @memberof Credentials
    */
-  username?: string;
+  email?: string;
   /**
    *
    * @type {string}
@@ -49,7 +49,7 @@ export function CredentialsFromJSONTyped(json: any, ignoreDiscriminator: boolean
     return json;
   }
   return {
-    username: json["username"] == null ? undefined : json["username"],
+    email: json["email"] == null ? undefined : json["email"],
     password: json["password"] == null ? undefined : json["password"],
   };
 }
@@ -64,7 +64,7 @@ export function CredentialsToJSONTyped(value?: Credentials | null, ignoreDiscrim
   }
 
   return {
-    username: value["username"],
+    email: value["email"],
     password: value["password"],
   };
 }

@@ -2780,7 +2780,8 @@
       },
       "Credentials": {
         "properties": {
-          "username": {
+          "email": {
+            "format": "email",
             "type": "string"
           },
           "password": {
@@ -2795,7 +2796,8 @@
             "format": "uuid",
             "type": "string"
           },
-          "username": {
+          "email": {
+            "format": "email",
             "type": "string"
           }
         },

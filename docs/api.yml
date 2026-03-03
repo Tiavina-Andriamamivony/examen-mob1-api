@@ -1188,8 +1188,9 @@ components:
     Credentials:
       type: object
       properties:
-        username:
+        email:
           type: string
+          format: email
         password:
           type: string
     SignUpResult:
@@ -1198,8 +1199,9 @@ components:
         id:
           type: string
           format: uuid
-        username:
+        email:
           type: string
+          format: email
     SignInResult:
       type: object
       properties:
