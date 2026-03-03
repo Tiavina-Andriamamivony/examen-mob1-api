@@ -1,5 +1,6 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from "./ConfirmPasswordReset200Response";
 export * from "./CreationGoal";
 export * from "./CreationLabel";
 export * from "./CreationProject";
@@ -16,6 +17,9 @@ export * from "./PaginationResult";
 export * from "./Project";
 export * from "./ProjectStatistics";
 export * from "./ProjectTransaction";
+export * from "./ResetPasswordConfirm";
+export * from "./ResetPasswordRequest";
+export * from "./ResetPasswordResponse";
 export * from "./SignInResult";
 export * from "./SignUpResult";
 export * from "./Transaction";

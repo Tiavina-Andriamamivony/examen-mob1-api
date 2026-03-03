@@ -63,6 +63,50 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/SignInResult"
+  /auth/reset-password:
+    post:
+      tags:
+        - auth
+      security: []
+      summary: Request a password reset token
+      operationId: requestPasswordReset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ResetPasswordRequest"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResetPasswordResponse"
+  /auth/reset-password/confirm:
+    post:
+      tags:
+        - auth
+      security: []
+      summary: Confirm password reset with token and new password
+      operationId: confirmPasswordReset
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/ResetPasswordConfirm"
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
   /account/{accountId}/label:
     get:
       tags:
@@ -1210,6 +1254,29 @@ components:
             - $ref: "#/components/schemas/SignUpResult"
         token:
           type: string
+    ResetPasswordRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+    ResetPasswordConfirm:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+        password:
+          type: string
+    ResetPasswordResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          format: uuid
+        expiresAt:
+          type: string
+          format: date-time
     PaginationResult:
       type: object
       properties:

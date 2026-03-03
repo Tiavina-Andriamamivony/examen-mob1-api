@@ -115,6 +115,76 @@
         "tags": ["auth"]
       }
     },
+    "/auth/reset-password": {
+      "post": {
+        "operationId": "requestPasswordReset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ResetPasswordRequest"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "allOf": [
+                    {
+                      "$ref": "#/components/schemas/ResetPasswordResponse"
+                    }
+                  ]
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [],
+        "summary": "Request a password reset token",
+        "tags": ["auth"]
+      }
+    },
+    "/auth/reset-password/confirm": {
+      "post": {
+        "operationId": "confirmPasswordReset",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "allOf": [
+                  {
+                    "$ref": "#/components/schemas/ResetPasswordConfirm"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/confirmPasswordReset_200_response"
+                }
+              }
+            },
+            "description": "OK"
+          }
+        },
+        "security": [],
+        "summary": "Confirm password reset with token and new password",
+        "tags": ["auth"]
+      }
+    },
     "/account/{accountId}/label": {
       "get": {
         "operationId": "getAllLabels",
@@ -2818,6 +2888,40 @@
         },
         "type": "object"
       },
+      "ResetPasswordRequest": {
+        "properties": {
+          "email": {
+            "format": "email",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResetPasswordConfirm": {
+        "properties": {
+          "token": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "ResetPasswordResponse": {
+        "properties": {
+          "token": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "expiresAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
       "PaginationResult": {
         "properties": {
           "totalPage": {
@@ -2979,6 +3083,14 @@
           },
           "transactionCount": {
             "type": "number"
+          }
+        },
+        "type": "object"
+      },
+      "confirmPasswordReset_200_response": {
+        "properties": {
+          "message": {
+            "type": "string"
           }
         },
         "type": "object"

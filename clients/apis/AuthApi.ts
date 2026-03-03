@@ -11,9 +11,32 @@
  * https://openapi-generator.tech
  * Do not edit the class manually.
  */
-import type { Credentials, SignInResult, SignUpResult } from "../models/index";
-import { CredentialsFromJSON, CredentialsToJSON, SignInResultFromJSON, SignInResultToJSON, SignUpResultFromJSON, SignUpResultToJSON } from "../models/index";
+import type { ConfirmPasswordReset200Response, Credentials, ResetPasswordConfirm, ResetPasswordRequest, ResetPasswordResponse, SignInResult, SignUpResult } from "../models/index";
+import {
+  ConfirmPasswordReset200ResponseFromJSON,
+  ConfirmPasswordReset200ResponseToJSON,
+  CredentialsFromJSON,
+  CredentialsToJSON,
+  ResetPasswordConfirmFromJSON,
+  ResetPasswordConfirmToJSON,
+  ResetPasswordRequestFromJSON,
+  ResetPasswordRequestToJSON,
+  ResetPasswordResponseFromJSON,
+  ResetPasswordResponseToJSON,
+  SignInResultFromJSON,
+  SignInResultToJSON,
+  SignUpResultFromJSON,
+  SignUpResultToJSON,
+} from "../models/index";
 import * as runtime from "../runtime";
+
+export interface ConfirmPasswordResetRequest {
+  resetPasswordConfirm?: ResetPasswordConfirm;
+}
+
+export interface RequestPasswordResetRequest {
+  resetPasswordRequest?: ResetPasswordRequest;
+}
 
 export interface SignInRequest {
   credentials?: Credentials;
@@ -27,6 +50,83 @@ export interface SignUpRequest {
  *
  */
 export class AuthApi extends runtime.BaseAPI {
+  /**
+   * Confirm password reset with token and new password
+   */
+  async confirmPasswordResetRaw(
+    requestParameters: ConfirmPasswordResetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ConfirmPasswordReset200Response>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    let urlPath = `/auth/reset-password/confirm`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: ResetPasswordConfirmToJSON(requestParameters["resetPasswordConfirm"]),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) => ConfirmPasswordReset200ResponseFromJSON(jsonValue));
+  }
+
+  /**
+   * Confirm password reset with token and new password
+   */
+  async confirmPasswordReset(
+    requestParameters: ConfirmPasswordResetRequest = {},
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<ConfirmPasswordReset200Response> {
+    const response = await this.confirmPasswordResetRaw(requestParameters, initOverrides);
+    return await response.value();
+  }
+
+  /**
+   * Request a password reset token
+   */
+  async requestPasswordResetRaw(
+    requestParameters: RequestPasswordResetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ResetPasswordResponse>> {
+    const queryParameters: any = {};
+
+    const headerParameters: runtime.HTTPHeaders = {};
+
+    headerParameters["Content-Type"] = "application/json";
+
+    let urlPath = `/auth/reset-password`;
+
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: ResetPasswordRequestToJSON(requestParameters["resetPasswordRequest"]),
+      },
+      initOverrides,
+    );
+
+    return new runtime.JSONApiResponse(response, (jsonValue) => ResetPasswordResponseFromJSON(jsonValue));
+  }
+
+  /**
+   * Request a password reset token
+   */
+  async requestPasswordReset(requestParameters: RequestPasswordResetRequest = {}, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<ResetPasswordResponse> {
+    const response = await this.requestPasswordResetRaw(requestParameters, initOverrides);
+    return await response.value();
+  }
+
   /**
    * Login with and existing account
    */
