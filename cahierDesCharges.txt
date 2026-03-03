@@ -1,0 +1,137 @@
+﻿Table des matières :
+Examen MOB1        2
+1. Projet :        2
+2. Description :        2
+3. Objectif  :        2
+4. Déroulement :        2
+5. Notation :        3
+6. Fonctionnalités :        3
+a. Authentification :        3
+b. Gestion de label :        3
+c. Gestion de portefeuille :        4
+d. Gestion des transactions :        4
+e. Objectifs :        4
+f. Configurations :        4
+g. Projet :        5
+7. Mot du prof :        5
+________________
+Examen MOB1
+1. Projet :
+Gestion Financière Personnelle
+2. Description :
+Le projet consiste en une application mobile permettant aux utilisateurs de gérer et de suivre leurs dépenses quotidiennes, mensuelles et annuelles, ainsi que de planifier leurs dépenses futures. Elle offre la possibilité de définir des objectifs financiers et de recevoir des retours réguliers sur l’évolution de ces objectifs. L’application proposera également une fonctionnalité premium destinée aux entrepreneurs, leur permettant de suivre et de gérer le budget de leurs projets.
+3. Objectif  :
+Cet examen a pour objectif d’évaluer votre compréhension de l’ensemble des notions abordées tout au long du cours de Mob 1, ainsi que votre capacité à effectuer des recherches personnelles afin d’implémenter de nouvelles fonctionnalités allant au-delà de vos connaissances actuelles.
+Il vise également à vous offrir l’opportunité de concevoir une application dont les fonctionnalités sont proches de celles demandées dans le monde professionnel, tout en étant utile et applicable à votre vie quotidienne.
+
+
+  
+
+(illustration d’une application à peu près similaire sur l'app store)
+4. Déroulement : 
+Cet examen se fera en groupe, avec un délai de réalisation de 3 semaines. Chaque groupe sera composé de 5 personnes, pouvant être un mélange des classes J1 et J2.
+* Si, à la fin de la formation des groupes, 4 personnes n’ont pas de groupe, elles pourront former un groupe de 4.
+* Dans le cas contraire, les personnes restantes devront rejoindre les autres groupes existants, ce qui pourra entraîner la formation de groupes de 6 personnes.
+
+
+Veuillez ajouter vos groupes et la liste des membres correspondants dans ce Google Sheets.
+À la fin de l’examen, chaque groupe devra envoyer une vidéo de démonstration de son application, dans laquelle chaque membre expliquera la partie qu’il a réalisée dans le développement de l’application.
+Vous êtes libres d’utiliser n’importe quelle technologie, sauf celles basées sur des webviews, comme Ionic ou ElectronJS.
+
+
+5. Notation : 
+Vous serez évalués sur cet examen en fonction de votre application finale. La répartition des notes se fera comme suit :
+* La majorité de vos points dépendra de votre capacité à fournir toutes les fonctionnalités. Gardez à l’esprit que la réalisation complète de toutes les fonctionnalités vous garantit une note supérieure à la moyenne.
+* Comme vous travaillez sur une application qui sera vue et utilisée par de nombreux utilisateurs, n’oubliez pas de soigner le visuel (UI/UX), car cela compte également pour une part importante de votre note.
+* Notez qu’un bonus de 3 points maximum sera accordé aux groupes qui ajouteront des tests Detox ou Maestro à leur application.
+
+
+
+
+6. Fonctionnalités :
+Voici ce qui est attendu dans l’application : 
+* Nom, logo et splash screen pour l’application
+* Authentification
+* Gestion des dépenses
+* Configurations de l’application 
+* Objectifs et budget
+* Projet et budget (premium)
+
+
+1. Authentification :
+* Création de compte utilisateur avec adresse email et mot de passe
+* Authentification avec adresse email et mot de passe
+* Création de compte utilisateur avec google
+* Authentification avec google
+* Réinitialisation du mot de passe 
+* Lors de la première authentification, sauvegardez les informations de login des utilisateurs dans keystore et permettez aux utilisateur après de se connecter sans mot de passe en utilisant leurs Fingerprints ou Face ID
+
+
+2. Gestion de label : 
+Les labels sont des noms uniques fournis par l’utilisateur pour catégoriser ses dépenses mais par défaut ajouter 5 labels pour que l’utilisateur puisse utiliser directement les utiliser :
+* Ajout de label
+* Modification de label
+* Suppression de label
+* Liste des labels disponibles avec pagination et filtres
+
+
+3. Gestion de portefeuille : 
+Un portefeuille regroupe l’ensemble de transactions dont : 
+* Ajout de nouveaux portefeuille
+* Liste des portefeuilles disponibles avec des statistiques
+* Modification de portefeuille
+* Suppression de portefeuille
+* Lors de la création d’un portefeuille, l’utilisateur peut spécifier un montant qui sera versée chaque chaque jours/mois/années sera aussi spécifier par l’utilisateur (Premium)
+
+
+4. Gestion des transactions :
+* Ajout de transaction
+* Affichage des transactions avec filtre et pagination
+* Affichage des transactions dans un calendrier
+* Modification de transaction
+* Suppression de transaction
+* Notification push tous les jours (modifiable) sur le montant des dépenses d’une journée (modifiable)
+* Ecran statistique sur les transactions dans un wallet et sur tout les transactions
+
+
+5. Objectifs : 
+Cette partie permet aux utilisateurs d’ajouter des objectifs de dépenses et de rentrer d’argent dans un intervalle de date : 
+* Ajout d’objectif
+* Modification d’objectif
+* Affichage des objectifs avec filtres et paginations
+* Notifications push à chaque échéance d’objectif qui redirige vers une affichage de l’objectif en question
+
+
+6. Configurations : 
+Cette partie permet aux utilisateurs de changer les paramètres de l’application : 
+* Configuration des notifications push sur la partie transactions : 
+   * Récurrence 
+   * Nombre de jours sur lesquelles compter les dépenses
+* Abonnement
+   * Affichage de l’abonnement actuel 
+   * Possibilité de s’abonner à une offre premium
+* Devise utilisée (USD, MGA, …)
+* Activation et désactivation de login sans mot de passe
+
+
+7. Projet :
+Cette partie permet aux utilisateurs de gérer le budget de leur projet :
+* Création de projet avec un budget initial et un estimation de coûts
+* CRUD sur les transactions d’estimations dans un projet et possibilité d’ajout de coût réel pour chaque transactions
+* Ecran de statistique pour visualiser un projet avec les différents coûts
+* Génération (backend) et affichage (possibilité de téléchargement et de partage du fichier) de pdf (factures, stats du pdf)
+
+
+7. Mot du prof : 
+Bonne chance et bon courage. 🙂
+L’api n’est pas encore en 100% opérationnel mais le sera bientôt. 
+Github de l’api: https://github.com/AmourRamanantsiresy/examen-mob1-api
+Comment le lancer: git clone, npm i, npm run migrate:dev
+Si vous avez des questions ou si vous voulez ajouter d’autres fonctionnalités à l'application, on a encore 2 séances et vous savez comment me contacter. (hors samedi & dimanche si possible 🙂)
+
+
+Les ressources disponibles dans l’api en ce moment : 
+* login et signup avec username et mot de passe
+* CRUD sur label avec filtres et paginations
+* CRUD sur wallet avec filtres et paginations
+* CRUD sur transaction avec filtres et paginations
