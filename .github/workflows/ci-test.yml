@@ -45,7 +45,7 @@ jobs:
     needs: unit-tests
 
     env:
-      DATABASE_URL: file:./test.db
+      DATABASE_URL: ${{ secrets.DATABASE_URL}}
       JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
 
     steps:
