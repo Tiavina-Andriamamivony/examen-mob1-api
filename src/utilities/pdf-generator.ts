@@ -1,5 +1,6 @@
-import PDFDocument = require("pdfkit");
 import { ProjectStatistics } from "@clients";
+
+import PDFDocument = require("pdfkit");
 
 export class PdfGeneratorService {
   /**
@@ -14,7 +15,8 @@ export class PdfGeneratorService {
 
     // Informations du projet
     doc.fontSize(14).font("Helvetica-Bold").text("Informations du Projet", 50, 100);
-    doc.fontSize(12)
+    doc
+      .fontSize(12)
       .font("Helvetica")
       .text(`Nom: ${statistics.project?.name || "N/A"}`, 50, 130)
       .text(`Description: ${statistics.project?.description || "N/A"}`, 50, 150)
@@ -23,7 +25,8 @@ export class PdfGeneratorService {
 
     // Statistiques
     doc.fontSize(14).font("Helvetica-Bold").text("Statistiques Budgétaires", 50, 220);
-    doc.fontSize(12)
+    doc
+      .fontSize(12)
       .font("Helvetica")
       .text(`Coût Estimé Total: ${statistics.totalEstimatedCost || 0} FCFA`, 50, 250)
       .text(`Coût Réel Total: ${statistics.totalRealCost || 0} FCFA`, 50, 270)
@@ -36,13 +39,11 @@ export class PdfGeneratorService {
     const percentUtilized = Math.round((((statistics.totalRealCost || 0) / projectBudget) * 100 * 100) / 100);
     const percentEstimated = Math.round((((statistics.totalEstimatedCost || 0) / projectBudget) * 100 * 100) / 100);
 
-    doc.fontSize(12)
-      .font("Helvetica")
-      .text(`Pourcentage Utilisé (Réel): ${percentUtilized}%`, 50, 360)
-      .text(`Pourcentage Estimé: ${percentEstimated}%`, 50, 380);
+    doc.fontSize(12).font("Helvetica").text(`Pourcentage Utilisé (Réel): ${percentUtilized}%`, 50, 360).text(`Pourcentage Estimé: ${percentEstimated}%`, 50, 380);
 
     // Pied de page
-    doc.fontSize(10)
+    doc
+      .fontSize(10)
       .font("Helvetica")
       .text(`Généré le: ${new Date().toLocaleDateString("fr-FR")}`, 50, doc.page.height - 50);
 
@@ -58,7 +59,8 @@ export class PdfGeneratorService {
 
     // En-tête
     doc.fontSize(20).font("Helvetica-Bold").text("FACTURE PROJET", 50, 40);
-    doc.fontSize(10)
+    doc
+      .fontSize(10)
       .font("Helvetica")
       .text(`Projet: ${statistics.project?.name || "N/A"}`, 50, 70)
       .text(`Date: ${new Date().toLocaleDateString("fr-FR")}`, 50, 85);
@@ -82,7 +84,10 @@ export class PdfGeneratorService {
     doc.text("Coût Est.", col3X, tableTop);
     doc.text("Coût Réel", col4X, tableTop);
 
-    doc.moveTo(50, tableTop + 15).lineTo(550, tableTop + 15).stroke();
+    doc
+      .moveTo(50, tableTop + 15)
+      .lineTo(550, tableTop + 15)
+      .stroke();
 
     // Données du tableau
     let yPosition = tableTop + 25;
@@ -116,7 +121,8 @@ export class PdfGeneratorService {
     doc.text(`Budget Restant: ${statistics.remainingBudget || 0} FCFA`, col3X, yPosition);
 
     // Pied de page
-    doc.fontSize(9)
+    doc
+      .fontSize(9)
       .font("Helvetica")
       .text(`Généré le: ${new Date().toLocaleDateString("fr-FR")} à ${new Date().toLocaleTimeString("fr-FR")}`, 50, doc.page.height - 40);
 
@@ -136,8 +142,14 @@ export class PdfGeneratorService {
     // En-tête personnalisé
     doc.fontSize(28).font("Helvetica-Bold").text("RÉSUMÉ DU PROJET", 50, 50);
 
-    doc.fontSize(16).font("Helvetica").text(statistics.project?.name || "Projet", 50, 90);
-    doc.fontSize(10).font("Helvetica").text(statistics.project?.description || "Sans description", 50, 115);
+    doc
+      .fontSize(16)
+      .font("Helvetica")
+      .text(statistics.project?.name || "Projet", 50, 90);
+    doc
+      .fontSize(10)
+      .font("Helvetica")
+      .text(statistics.project?.description || "Sans description", 50, 115);
 
     doc.moveDown(1);
 
@@ -147,21 +159,24 @@ export class PdfGeneratorService {
     const budgetBox = { x: 50, y: 190, width: 500, height: 120 };
     doc.rect(budgetBox.x, budgetBox.y, budgetBox.width, budgetBox.height).stroke();
 
-    doc.fontSize(11)
+    doc
+      .fontSize(11)
       .font("Helvetica-Bold")
       .text("Budget Initial", 70, 200)
       .font("Helvetica")
       .fontSize(16)
       .text(`${statistics.project?.initialBudget || 0} FCFA`, 70, 220);
 
-    doc.fontSize(11)
+    doc
+      .fontSize(11)
       .font("Helvetica-Bold")
       .text("Total Dépensé", 280, 200)
       .font("Helvetica")
       .fontSize(16)
       .text(`${statistics.totalRealCost || 0} FCFA`, 280, 220);
 
-    doc.fontSize(11)
+    doc
+      .fontSize(11)
       .font("Helvetica-Bold")
       .text("Restant", 450, 200)
       .font("Helvetica")
@@ -182,11 +197,17 @@ export class PdfGeneratorService {
     const barWidth = Math.min((percentUtilized / 100) * 400, 400);
     doc.rect(50, 350, barWidth, 20).fill(barColor);
 
-    doc.fillColor("black").fontSize(10).text(`${Math.round(percentUtilized)}%`, 460, 352);
+    doc
+      .fillColor("black")
+      .fontSize(10)
+      .text(`${Math.round(percentUtilized)}%`, 460, 352);
 
     // Pied de page
     doc.moveDown(5);
-    doc.fontSize(9).font("Helvetica").text(`Généré le: ${new Date().toLocaleDateString("fr-FR")}`, 50, doc.page.height - 50);
+    doc
+      .fontSize(9)
+      .font("Helvetica")
+      .text(`Généré le: ${new Date().toLocaleDateString("fr-FR")}`, 50, doc.page.height - 50);
 
     doc.end();
     return doc;

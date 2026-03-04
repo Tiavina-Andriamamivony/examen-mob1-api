@@ -1,9 +1,9 @@
-import { WalletServices } from "@/services";
 import { WalletMapper } from "@/mappers";
-import { WalletValidator } from "@/validator";
+import { WalletServices } from "@/services";
 import { getValuesFromQuery } from "@/utilities";
 import { handler } from "@/utilities/handler";
 import { createLogger } from "@/utilities/logger";
+import { WalletValidator } from "@/validator";
 
 const log = createLogger("WalletController");
 

@@ -1,67 +1,55 @@
-import { RequestHandler } from "express";
-import { v4 } from "uuid";
-
 import { LabelMapper } from "@/mappers";
 import { LabelServices } from "@/services";
+import { handler } from "@/utilities/handler";
+import { createLogger } from "@/utilities/logger";
 import { LabelValidator } from "@/validator";
 
+const log = createLogger("LabelController");
+
 export class LabelController {
-  static readonly create: RequestHandler = async (req, res, _next) => {
-    try {
-      const label = req.body;
-      const accountId = (req as any).account.id;
+  static readonly create = handler(async ({ req, accountId }) => {
+    log.info(`Creating label for account=${accountId}`);
 
-      LabelValidator.create(label);
+    LabelValidator.create(req.body);
+    const data = await LabelServices.create(accountId, req.body);
 
-      const data = await LabelServices.create(accountId, { id: v4(), ...label });
-      res.json(LabelMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly update: RequestHandler = async (req, res, _next) => {
-    try {
-      const label = req.body;
-      const accountId = (req as any).account.id;
-      const { labelId } = req.params;
+    return LabelMapper.toRest(data);
+  });
 
-      LabelValidator.update(accountId, label);
+  static readonly update = handler(async ({ req, accountId }) => {
+    const { labelId } = req.params as Record<string, string>;
+    log.info(`Updating label=${labelId} for account=${accountId}`);
 
-      const data = await LabelServices.update(accountId, { ...label, id: labelId });
-      res.json(LabelMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly getOne: RequestHandler = async (req, res, _next) => {
-    try {
-      const { labelId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await LabelServices.getOneById(accountId, labelId as string);
-      res.json(LabelMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly archiveOne: RequestHandler = async (req, res, _next) => {
-    try {
-      const { labelId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await LabelServices.archiveOneById(accountId, labelId as string);
-      res.json(LabelMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly getAll: RequestHandler = async (req, res, _next) => {
-    try {
-      const { page, pageSize } = req as any;
-      const accountId = (req as any).account.id;
+    LabelValidator.update(accountId, req.body);
+    const data = await LabelServices.update(accountId, { ...req.body, id: labelId });
 
-      const data = await LabelServices.getAll(accountId, { ...req.query, page, pageSize });
-      res.json(LabelMapper.toListResponse(data.values, { page, pageSize, elementCount: data.count }));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
+    return LabelMapper.toRest(data);
+  });
+
+  static readonly getOne = handler(async ({ req, accountId }) => {
+    const { labelId } = req.params as Record<string, string>;
+    log.info(`Fetching label=${labelId} for account=${accountId}`);
+
+    const data = await LabelServices.getOneById(accountId, labelId);
+
+    return LabelMapper.toRest(data);
+  });
+
+  static readonly archiveOne = handler(async ({ req, accountId }) => {
+    const { labelId } = req.params as Record<string, string>;
+    log.info(`Archiving label=${labelId} for account=${accountId}`);
+
+    const data = await LabelServices.archiveOneById(accountId, labelId);
+
+    return LabelMapper.toRest(data);
+  });
+
+  static readonly getAll = handler(async ({ req, accountId }) => {
+    const { page, pageSize } = req as any;
+    log.info(`Fetching all labels for account=${accountId}`);
+
+    const data = await LabelServices.getAll(accountId, { ...req.query, page, pageSize });
+
+    return LabelMapper.toListResponse(data.values, { page, pageSize, elementCount: data.count });
+  });
 }

@@ -2,10 +2,11 @@ import { Account } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import * as jwt from "jsonwebtoken";
 import { v4 } from "uuid";
-require('dotenv').config()
-;
+
 import { getPrismaClient } from "@/configs";
 import { ApiError } from "@/errors";
+
+require("dotenv").config();
 
 export class AccountServices {
   static async singUp(userId: string, account: Account) {

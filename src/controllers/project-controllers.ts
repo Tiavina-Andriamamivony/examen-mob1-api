@@ -3,8 +3,8 @@ import { RequestHandler } from "express";
 import { ApiError } from "@/errors";
 import { ProjectMapper } from "@/mappers";
 import { ProjectServices } from "@/services";
-import { ProjectValidator } from "@/validator";
 import { PdfGeneratorService } from "@/utilities/pdf-generator";
+import { ProjectValidator } from "@/validator";
 
 export class ProjectController {
   // Project Management
@@ -172,7 +172,7 @@ export class ProjectController {
       const transactions = await ProjectServices.getTransactionsByProject(accountId, projectId as string);
       const pdfStream = PdfGeneratorService.generateProjectInvoicePDF(
         ProjectMapper.statisticsToRest(statistics),
-        transactions.map((t) => ProjectMapper.transactionToRest(t))
+        transactions.map((t) => ProjectMapper.transactionToRest(t)),
       );
       res.setHeader("Content-Type", "application/pdf");
       res.setHeader("Content-Disposition", `attachment; filename="invoice-${projectId}.pdf"`);

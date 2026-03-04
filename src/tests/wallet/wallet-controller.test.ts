@@ -1,15 +1,13 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { RequestHandler, Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import { WalletController } from "@/controllers/wallet-controllers";
-import { NotFoundError, BadRequestError } from "@/errors";
-import {
-  ACCOUNT_ID,
-  WALLET_ID,
-  makePrismaWallet,
-  makeCreationWallet,
-  makeUpdateWallet,
-  makeAutomaticIncome,
-} from "../fixtures/wallet.fixtures";
+import { BadRequestError, NotFoundError } from "@/errors";
+import { WalletMapper } from "@/mappers";
+import { WalletServices } from "@/services";
+import { WalletValidator } from "@/validator";
+
+import { ACCOUNT_ID, WALLET_ID, makeAutomaticIncome, makeCreationWallet, makePrismaWallet, makeUpdateWallet } from "../fixtures/wallet.fixtures";
 
 vi.mock("@/services", () => ({
   WalletServices: {
@@ -38,10 +36,6 @@ vi.mock("@/mappers", () => ({
   },
 }));
 
-import { WalletServices } from "@/services";
-import { WalletValidator } from "@/validator";
-import { WalletMapper } from "@/mappers";
-
 const makeReq = (overrides: Record<string, any> = {}): Request => {
   const base = {
     params: { walletId: WALLET_ID },
@@ -65,12 +59,7 @@ const makeRes = (): Response => {
 
 const makeNext = (): NextFunction => vi.fn();
 
-const callHandler = async (
-  handler: RequestHandler,
-  req: Request,
-  res: Response,
-  next?: NextFunction
-) => {
+const callHandler = async (handler: RequestHandler, req: Request, res: Response, next?: NextFunction) => {
   const nextFn = next ?? makeNext();
   await (handler as any)(req, res, nextFn);
   return { req, res, next: nextFn };
@@ -101,24 +90,18 @@ describe("WalletController", () => {
       const error = new BadRequestError("Name already exists");
       vi.mocked(WalletServices.create).mockRejectedValue(error);
 
-      const { next } = await callHandler(
-        WalletController.create,
-        makeReq({ body: makeCreationWallet() }),
-        makeRes()
-      );
+      const { next } = await callHandler(WalletController.create, makeReq({ body: makeCreationWallet() }), makeRes());
 
       expect(next).toHaveBeenCalledWith(error);
     });
 
     it("should call next with error when validator throws", async () => {
       const error = new BadRequestError("Validation failed");
-      vi.mocked(WalletValidator.create).mockImplementation(() => { throw error; });
+      vi.mocked(WalletValidator.create).mockImplementation(() => {
+        throw error;
+      });
 
-      const { next } = await callHandler(
-        WalletController.create,
-        makeReq({ body: {} }),
-        makeRes()
-      );
+      const { next } = await callHandler(WalletController.create, makeReq({ body: {} }), makeRes());
 
       expect(next).toHaveBeenCalledWith(error);
       expect(WalletServices.create).not.toHaveBeenCalled();
@@ -137,10 +120,7 @@ describe("WalletController", () => {
       await callHandler(WalletController.update, req, res, next);
 
       expect(WalletValidator.update).toHaveBeenCalledWith(ACCOUNT_ID, req.body);
-      expect(WalletServices.update).toHaveBeenCalledWith(
-        ACCOUNT_ID,
-        { ...req.body, id: WALLET_ID }
-      );
+      expect(WalletServices.update).toHaveBeenCalledWith(ACCOUNT_ID, { ...req.body, id: WALLET_ID });
       expect(res.json).toHaveBeenCalled();
       expect(next).not.toHaveBeenCalled();
     });
@@ -149,24 +129,18 @@ describe("WalletController", () => {
       const error = new NotFoundError("Wallet not found");
       vi.mocked(WalletServices.update).mockRejectedValue(error);
 
-      const { next } = await callHandler(
-        WalletController.update,
-        makeReq({ body: makeUpdateWallet() }),
-        makeRes()
-      );
+      const { next } = await callHandler(WalletController.update, makeReq({ body: makeUpdateWallet() }), makeRes());
 
       expect(next).toHaveBeenCalledWith(error);
     });
 
     it("should call next with error when validator throws ForbiddenError", async () => {
       const error = new BadRequestError("Forbidden");
-      vi.mocked(WalletValidator.update).mockImplementation(() => { throw error; });
+      vi.mocked(WalletValidator.update).mockImplementation(() => {
+        throw error;
+      });
 
-      const { next } = await callHandler(
-        WalletController.update,
-        makeReq({ body: makeUpdateWallet() }),
-        makeRes()
-      );
+      const { next } = await callHandler(WalletController.update, makeReq({ body: makeUpdateWallet() }), makeRes());
 
       expect(next).toHaveBeenCalledWith(error);
       expect(WalletServices.update).not.toHaveBeenCalled();
@@ -185,22 +159,18 @@ describe("WalletController", () => {
       await callHandler(WalletController.updateAutomaticIncome, req, res, next);
 
       expect(WalletValidator.updateAutomaticIncome).toHaveBeenCalledWith(req.body);
-      expect(WalletServices.updateAutomaticIncome).toHaveBeenCalledWith(
-        ACCOUNT_ID, WALLET_ID, req.body
-      );
+      expect(WalletServices.updateAutomaticIncome).toHaveBeenCalledWith(ACCOUNT_ID, WALLET_ID, req.body);
       expect(res.json).toHaveBeenCalled();
       expect(next).not.toHaveBeenCalled();
     });
 
     it("should call next with error when validator throws", async () => {
       const error = new BadRequestError("Invalid type");
-      vi.mocked(WalletValidator.updateAutomaticIncome).mockImplementation(() => { throw error; });
+      vi.mocked(WalletValidator.updateAutomaticIncome).mockImplementation(() => {
+        throw error;
+      });
 
-      const { next } = await callHandler(
-        WalletController.updateAutomaticIncome,
-        makeReq({ body: {} }),
-        makeRes()
-      );
+      const { next } = await callHandler(WalletController.updateAutomaticIncome, makeReq({ body: {} }), makeRes());
 
       expect(next).toHaveBeenCalledWith(error);
       expect(WalletServices.updateAutomaticIncome).not.toHaveBeenCalled();
@@ -235,9 +205,7 @@ describe("WalletController", () => {
 
   describe("archiveOne", () => {
     it("should archive wallet and return mapped result", async () => {
-      vi.mocked(WalletServices.archiveOneById).mockResolvedValue(
-        makePrismaWallet({ isArchived: true })
-      );
+      vi.mocked(WalletServices.archiveOneById).mockResolvedValue(makePrismaWallet({ isArchived: true }));
 
       const res = makeRes();
       const next = makeNext();
@@ -279,7 +247,9 @@ describe("WalletController", () => {
 
     it("should call next with error when validator throws", async () => {
       const error = new BadRequestError("Invalid walletType");
-      vi.mocked(WalletValidator.getAll).mockImplementation(() => { throw error; });
+      vi.mocked(WalletValidator.getAll).mockImplementation(() => {
+        throw error;
+      });
 
       const { next } = await callHandler(WalletController.getAll, makeReq(), makeRes());
 
@@ -288,13 +258,13 @@ describe("WalletController", () => {
     });
 
     it("should call next with error when service throws", async () => {
-        vi.mocked(WalletValidator.getAll).mockImplementation(() => {}); // reset to no-op
-        const error = new BadRequestError("DB error");
-        vi.mocked(WalletServices.getAll).mockRejectedValue(error);
+      vi.mocked(WalletValidator.getAll).mockImplementation(() => {}); // reset to no-op
+      const error = new BadRequestError("DB error");
+      vi.mocked(WalletServices.getAll).mockRejectedValue(error);
 
-        const { next } = await callHandler(WalletController.getAll, makeReq(), makeRes());
+      const { next } = await callHandler(WalletController.getAll, makeReq(), makeRes());
 
-        expect(next).toHaveBeenCalledWith(error);
+      expect(next).toHaveBeenCalledWith(error);
     });
   });
 });

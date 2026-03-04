@@ -45,8 +45,7 @@ export class WalletValidator {
   }
 
   static update(accountId: string, body: UpdateWallet): void {
-    if (body.accountId !== accountId)
-      throw new ForbiddenError("Your account is not able to make changes on this element");
+    if (body.accountId !== accountId) throw new ForbiddenError("Your account is not able to make changes on this element");
     parseOrThrow(updateWalletSchema, body);
   }
 

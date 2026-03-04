@@ -1,48 +1,49 @@
-import { CreationTransaction as RestCreationTransaction, Transaction as RestTransaction } from "@clients";
-import { Transaction as PrismaTransaction } from "@prisma/client";
+import { CreationTransaction, Transaction as RestTransaction } from "@clients";
+import { Label as PrismaLabel, Transaction as PrismaTransaction } from "@prisma/client";
 import { v4 } from "uuid";
 
 import { LabelMapper } from "./label-mapper";
 
+type PrismaTransactionWithLabels = PrismaTransaction & { labels: PrismaLabel[] };
+
 export class TransactionMapper {
-  public static toRest(transaction: any) {
-    const result = {
-      accountId: transaction.accountId,
-      amount: transaction.amount,
-      date: transaction.date.toISOString(),
-      description: transaction.description,
+  static toRest(transaction: PrismaTransactionWithLabels): RestTransaction {
+    return {
       id: transaction.id,
-      type: transaction.type,
+      accountId: transaction.accountId,
       walletId: transaction.walletId,
+      amount: transaction.amount,
+      date: transaction.date,
+      description: transaction.description ?? undefined,
+      type: transaction.type as RestTransaction["type"],
       labels: transaction.labels.map(LabelMapper.toRest),
     };
-
-    return result;
   }
-  public static create(accountId: string, walletId: string, transaction: RestCreationTransaction): PrismaTransaction {
-    const mapped: PrismaTransaction = {
+
+  static create(accountId: string, walletId: string, transaction: CreationTransaction): PrismaTransaction {
+    return {
       id: v4(),
       accountId,
       walletId,
-      amount: transaction.amount,
-      date: new Date(transaction.date),
-      description: transaction.description,
-      type: transaction.type,
+      amount: transaction.amount ?? 0,
+      date: new Date(transaction.date as unknown as string),
+      description: transaction.description ?? null,
+      type: transaction.type ?? "IN",
       createdAt: new Date(),
       updatedAt: new Date(),
-    };
-    return mapped as PrismaTransaction;
+    } as PrismaTransaction;
   }
-  public static update(accountId: string, walletId: string, transaction: RestTransaction): PrismaTransaction {
-    const mapped = {
+
+  static update(accountId: string, walletId: string, transaction: RestTransaction): PrismaTransaction {
+    return {
       id: transaction.id,
       accountId,
       walletId,
-      amount: transaction.amount,
-      date: new Date(transaction.date),
-      description: transaction.description,
-      type: transaction.type,
-    };
-    return mapped as PrismaTransaction;
+      amount: transaction.amount ?? 0,
+      date: new Date(transaction.date as unknown as string),
+      description: transaction.description ?? null,
+      type: transaction.type ?? "IN",
+      updatedAt: new Date(),
+    } as PrismaTransaction;
   }
 }

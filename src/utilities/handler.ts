@@ -1,9 +1,11 @@
-import { Request, Response, NextFunction, RequestHandler } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
+
 import { HandlerContext } from "@/types/handler";
 
 type HandlerFn = (context: HandlerContext) => Promise<unknown>;
 
-export const handler = (fn: HandlerFn): RequestHandler =>
+export const handler =
+  (fn: HandlerFn): RequestHandler =>
   async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const accountId = (req as any).account.id as string;

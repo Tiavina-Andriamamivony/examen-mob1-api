@@ -1,71 +1,59 @@
-import { RequestHandler } from "express";
-
-import { BadRequestError } from "@/errors";
 import { TransactionMapper } from "@/mappers";
 import { TransactionServices } from "@/services";
+import { handler } from "@/utilities/handler";
+import { createLogger } from "@/utilities/logger";
 import { TransactionValidator } from "@/validator";
 
+const log = createLogger("TransactionController");
+
 export class TransactionController {
-  static readonly create: RequestHandler = async (req, res, _next) => {
-    try {
-      const { walletId, accountId } = req.params as Record<string, string>;
+  static readonly create = handler(async ({ req, accountId }) => {
+    const { walletId } = req.params as Record<string, string>;
+    log.info(`Creating transaction for wallet=${walletId} account=${accountId}`);
 
-      TransactionValidator.create(req.body);
-      const mappedCreateTransaction = TransactionMapper.create(accountId, walletId, req.body);
-      const labels = req.body.labels;
+    TransactionValidator.create(req.body);
+    const mapped = TransactionMapper.create(accountId, walletId, req.body);
+    const data = await TransactionServices.create(accountId, walletId, mapped, req.body.labels);
 
-      if (!labels || labels.length === 0) throw new BadRequestError("One label is expected at least");
+    return TransactionMapper.toRest(data as any);
+  });
 
-      const data = await TransactionServices.create(accountId, walletId, mappedCreateTransaction, req.body.labels);
-      res.json(TransactionMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly update: RequestHandler = async (req, res, _next) => {
-    try {
-      const label = req.body;
-      const accountId = (req as any).account.id;
-      const { walletId, transactionId } = req.params as Record<string, string>;
+  static readonly update = handler(async ({ req, accountId }) => {
+    const { walletId, transactionId } = req.params as Record<string, string>;
+    log.info(`Updating transaction=${transactionId} account=${accountId}`);
 
-      TransactionValidator.update(accountId, label);
-      const mappedUpdateTransaction = TransactionMapper.update(accountId, walletId as string, req.body);
-      const labels = req.body.labels;
-      if (!labels || labels.length === 0) throw new BadRequestError("One label is expected at least");
+    TransactionValidator.update(accountId, req.body);
+    const mapped = TransactionMapper.update(accountId, walletId, req.body);
+    const data = await TransactionServices.update(accountId, walletId, transactionId, mapped, req.body.labels);
 
-      const data = await TransactionServices.update(accountId, walletId, transactionId, mappedUpdateTransaction, labels);
-      res.json(TransactionMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly getOne: RequestHandler = async (req, res, _next) => {
-    try {
-      const { walletId, accountId, transactionId } = req.params as Record<string, string>;
-      const data = await TransactionServices.getOneById(accountId, walletId, transactionId);
-      res.json(TransactionMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly deleteOne: RequestHandler = async (req, res, _next) => {
-    try {
-      const { walletId, accountId, transactionId } = req.params as Record<string, string>;
-      const data = await TransactionServices.deleteOneById(accountId, walletId, transactionId);
-      res.json(TransactionMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly getAll: RequestHandler = async (req, res, _next) => {
-    try {
-      const { page, pageSize } = req as any;
-      const { accountId } = req.params as Record<string, string>;
-      TransactionValidator.filters(req.query as any);
-      const data = await TransactionServices.getAll(accountId, { page, pageSize, ...req.query });
-      res.json(data.map(TransactionMapper.toRest));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
+    return TransactionMapper.toRest(data as any);
+  });
+
+  static readonly getOne = handler(async ({ req, accountId }) => {
+    const { walletId, transactionId } = req.params as Record<string, string>;
+    log.info(`Fetching transaction=${transactionId} account=${accountId}`);
+
+    const data = await TransactionServices.getOneById(accountId, walletId, transactionId);
+
+    return TransactionMapper.toRest(data as any);
+  });
+
+  static readonly deleteOne = handler(async ({ req, accountId }) => {
+    const { walletId, transactionId } = req.params as Record<string, string>;
+    log.info(`Deleting transaction=${transactionId} account=${accountId}`);
+
+    const data = await TransactionServices.deleteOneById(accountId, walletId, transactionId);
+
+    return TransactionMapper.toRest(data as any);
+  });
+
+  static readonly getAll = handler(async ({ req, accountId }) => {
+    const { page, pageSize } = req as any;
+    log.info(`Fetching all transactions for account=${accountId}`);
+
+    TransactionValidator.filters(req.query as any);
+    const data = await TransactionServices.getAll(accountId, { page, pageSize, ...req.query });
+
+    return data.values.map((t) => TransactionMapper.toRest(t as any));
+  });
 }

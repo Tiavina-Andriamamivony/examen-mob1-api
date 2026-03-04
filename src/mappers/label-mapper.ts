@@ -6,40 +6,42 @@ import { PrismaPaginationInfo } from "@/types";
 import { DEFAULT_COLOR, calculatePagination } from "@/utilities";
 
 export class LabelMapper {
-  public static toRest(label: PrismaLabel) {
-    const mapped: RestLabel = {
+  static toRest(label: PrismaLabel): RestLabel {
+    return {
       id: label.id,
       name: label.name,
-      color: label.color || DEFAULT_COLOR,
-      iconRef: label.iconRef,
+      color: label.color ?? DEFAULT_COLOR,
+      iconRef: label.iconRef ?? undefined,
     };
-    return mapped;
   }
 
-  public static update(accountId: string, label: RestLabel) {
-    const mapped = {
+  static create(accountId: string, label: RestLabel): PrismaLabel {
+    return {
+      id: v4(),
       accountId,
-      color: label.color || DEFAULT_COLOR,
-      iconRef: label.iconRef,
-      id: label.id,
-      name: label.name || "",
-    };
-
-    return mapped as PrismaLabel;
+      name: label.name ?? "",
+      color: label.color ?? DEFAULT_COLOR,
+      iconRef: label.iconRef ?? null,
+      isArchived: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    } as PrismaLabel;
   }
 
-  public static create(accountId: string, label: RestLabel) {
-    return this.update(accountId, { ...label, id: v4() });
+  static update(accountId: string, label: RestLabel): Partial<PrismaLabel> {
+    return {
+      accountId,
+      name: label.name ?? "",
+      color: label.color ?? DEFAULT_COLOR,
+      iconRef: label.iconRef ?? null,
+      updatedAt: new Date(),
+    };
   }
 
-  public static toListResponse(labels: PrismaLabel[], prismaPaginationInfo: PrismaPaginationInfo) {
-    const mapped = labels.map(this.toRest.bind(this));
-
-    const listResponse: GetAllLabels200Response = {
-      pagination: calculatePagination(prismaPaginationInfo),
-      values: mapped,
+  static toListResponse(labels: PrismaLabel[], pagination: PrismaPaginationInfo): GetAllLabels200Response {
+    return {
+      pagination: calculatePagination(pagination),
+      values: labels.map(this.toRest.bind(this)),
     };
-
-    return listResponse;
   }
 }

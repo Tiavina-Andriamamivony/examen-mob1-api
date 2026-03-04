@@ -1,5 +1,5 @@
-import { Wallet as PrismaWallet } from "@prisma/client";
 import { CreationWallet, UpdateWallet, WalletAutomaticIncome } from "@clients";
+import { Wallet as PrismaWallet } from "@prisma/client";
 
 export const ACCOUNT_ID = "account-123";
 export const WALLET_ID = "wallet-456";
@@ -41,12 +41,11 @@ export const makeUpdateWallet = (overrides: Partial<UpdateWallet> = {}): UpdateW
   isActive: true,
   color: "#22c55e",
   iconRef: "🏦",
+  amount: 1000,
   ...overrides,
 });
 
-export const makeAutomaticIncome = (
-  overrides: Partial<WalletAutomaticIncome> = {}
-): WalletAutomaticIncome => ({
+export const makeAutomaticIncome = (overrides: Partial<WalletAutomaticIncome> = {}): WalletAutomaticIncome => ({
   type: "MENSUAL",
   amount: 500,
   paymentDay: 15,

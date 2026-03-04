@@ -1,8 +1,9 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import type { Request, Response, NextFunction } from "express";
+import type { NextFunction, Request, Response } from "express";
 import * as jwt from "jsonwebtoken";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { ForbiddenError, UnauthorizedError } from "@/errors";
 import { securityHandler } from "@/middlewares/security-middleware";
-import { UnauthorizedError, ForbiddenError } from "@/errors";
 
 vi.mock("jsonwebtoken", () => ({
   verify: vi.fn(),
@@ -20,7 +21,7 @@ const makeReq = (overrides: Record<string, any> = {}): Request => {
   return { ...base, ...overrides } as unknown as Request;
 };
 
-const makeRes = (): Response => ({} as Response);
+const makeRes = (): Response => ({}) as Response;
 const makeNext = (): NextFunction => vi.fn();
 
 beforeEach(() => {
@@ -157,11 +158,7 @@ describe("securityHandler", () => {
 
       securityHandler(makeReq(), makeRes(), makeNext());
 
-      expect(jwt.verify).toHaveBeenCalledWith(
-        VALID_TOKEN,
-        VALID_SECRET,
-        expect.any(Function)
-      );
+      expect(jwt.verify).toHaveBeenCalledWith(VALID_TOKEN, VALID_SECRET, expect.any(Function));
     });
   });
 });

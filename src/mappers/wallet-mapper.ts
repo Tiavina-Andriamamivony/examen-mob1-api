@@ -56,10 +56,7 @@ export class WalletMapper {
     };
   }
 
-  static toListResponse(
-    wallets: PrismaWallet[],
-    pagination: PrismaPaginationInfo
-  ): GetAllWallets200Response {
+  static toListResponse(wallets: PrismaWallet[], pagination: PrismaPaginationInfo): GetAllWallets200Response {
     return {
       pagination: calculatePagination(pagination),
       values: wallets.map(this.toRest.bind(this)),

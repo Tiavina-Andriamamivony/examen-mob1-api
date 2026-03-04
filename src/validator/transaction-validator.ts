@@ -1,41 +1,64 @@
-import { CreationTransaction } from "@clients";
+import { CreationTransaction, Transaction } from "@clients";
 import z from "zod";
 
-import { ApiError, BadRequestError } from "@/errors";
+import { BadRequestError, ForbiddenError } from "@/errors";
 import { TransactionFilters } from "@/types";
 
+const TRANSACTION_TYPES = ["IN", "OUT"] as const;
+const SORT_BY_VALUES = ["date", "amount"] as const;
+const SORT_VALUES = ["asc", "desc"] as const;
+
 const createTransactionSchema = z.object({
-  date: z.refine((value) => new Date(value as string).toString() !== "Invalid Date", "Date invalide"),
-  labels: z.array(z.object({ id: z.string() })).min(1),
-  type: z.refine((type: string) => ["IN", "OUT"].includes(type), "Type should be one of : IN, OUT"),
-  amount: z.number().min(1),
+  date: z.preprocess(
+    (val) => (val instanceof Date ? val.toISOString() : val),
+    z.string().refine((value) => new Date(value).toString() !== "Invalid Date", "Invalid date format"),
+  ),
+  labels: z.array(z.object({ id: z.string() })).min(1, "At least one label is required"),
+  type: z.enum(TRANSACTION_TYPES),
+  amount: z.number().min(1, "Amount must be greater than 0"),
+  description: z.string().optional(),
 });
+
+const updateTransactionSchema = createTransactionSchema;
 
 const filtersSchema = z.object({
-  type: z.refine((type: string) => !type || ["IN", "OUT"].includes(type), "Type should be one of : IN, OUT"),
-  sortBy: z.refine((sortBy: string) => !sortBy || ["date", "amount"].includes(sortBy), "SortBy should be one of : date, amount"),
-  sort: z.refine((sort: string) => !sort || ["asc", "desc"].includes(sort), "SortBy should be one of : asc, desc"),
-  startingDate: z.refine((value) => !value || new Date(value as string).toString() !== "Invalid Date", "Date invalide"),
-  endingDate: z.refine((value) => !value || new Date(value as string).toString() !== "Invalid Date", "Date invalide"),
-  minAmount: z.refine((value) => !value || /^-?\d+(\.\d+)?$/.test(String(value)), "Min amount must be a valid number"),
-  maxAmount: z.refine((value) => !value || /^-?\d+(\.\d+)?$/.test(String(value)), "Max amount must be a valid number"),
+  type: z.enum(TRANSACTION_TYPES).optional(),
+  sortBy: z.enum(SORT_BY_VALUES).optional(),
+  sort: z.enum(SORT_VALUES).optional(),
+  startingDate: z
+    .string()
+    .refine((value) => !value || new Date(value).toString() !== "Invalid Date", "Invalid startingDate format")
+    .optional(),
+  endingDate: z
+    .string()
+    .refine((value) => !value || new Date(value).toString() !== "Invalid Date", "Invalid endingDate format")
+    .optional(),
+  minAmount: z
+    .string()
+    .refine((value) => !value || /^-?\d+(\.\d+)?$/.test(value), "minAmount must be a valid number")
+    .optional(),
+  maxAmount: z
+    .string()
+    .refine((value) => !value || /^-?\d+(\.\d+)?$/.test(value), "maxAmount must be a valid number")
+    .optional(),
 });
 
+const parseOrThrow = (schema: z.ZodSchema, data: unknown): void => {
+  const result = schema.safeParse(data);
+  if (!result.success) throw new BadRequestError(z.prettifyError(result.error));
+};
+
 export class TransactionValidator {
-  public static create(createTransaction: z.infer<typeof createTransactionSchema>) {
-    const result = createTransactionSchema.safeParse(createTransaction);
-    if (!result.success) throw new BadRequestError(z.prettifyError(result.error));
+  static create(body: CreationTransaction): void {
+    parseOrThrow(createTransactionSchema, body);
   }
 
-  public static update(accountId: string, createTransaction: CreationTransaction) {
-    if (createTransaction.accountId !== accountId) throw new ApiError("Your account is not able to make change on this element", 403);
-    const result = createTransactionSchema.safeParse(createTransaction);
-
-    if (!result.success) throw new BadRequestError(z.prettifyError(result.error));
+  static update(accountId: string, body: Transaction): void {
+    if (body.accountId !== accountId) throw new ForbiddenError("Your account is not able to make changes on this element");
+    parseOrThrow(updateTransactionSchema, body);
   }
 
-  public static filters(filters: TransactionFilters) {
-    const result = filtersSchema.safeParse(filters);
-    if (!result.success) throw new BadRequestError(z.prettifyError(result.error));
+  static filters(filters: Partial<TransactionFilters>): void {
+    parseOrThrow(filtersSchema, filters);
   }
 }

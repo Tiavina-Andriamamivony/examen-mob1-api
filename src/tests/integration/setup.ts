@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import { afterAll, beforeAll } from "vitest";
+
 import { resetPrismaClient } from "@/configs";
 
 export let prisma: PrismaClient;
