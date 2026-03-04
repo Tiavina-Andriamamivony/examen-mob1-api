@@ -114,9 +114,9 @@ export interface UpdateOneProjectTransactionRequest {
  */
 export class ProjectApi extends runtime.BaseAPI {
   /**
-   * Archive one project by id
+   * Creates request options for archiveOneProject without sending the request
    */
-  async archiveOneProjectRaw(requestParameters: ArchiveOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+  async archiveOneProjectRequestOpts(requestParameters: ArchiveOneProjectRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling archiveOneProject().');
     }
@@ -133,15 +133,20 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Archive one project by id
+   */
+  async archiveOneProjectRaw(requestParameters: ArchiveOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+    const requestOptions = await this.archiveOneProjectRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectFromJSON(jsonValue));
   }
@@ -155,9 +160,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create new project for the specified account
+   * Creates request options for createOneProject without sending the request
    */
-  async createOneProjectRaw(requestParameters: CreateOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+  async createOneProjectRequestOpts(requestParameters: CreateOneProjectRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling createOneProject().');
     }
@@ -171,16 +176,21 @@ export class ProjectApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/project`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreationProjectToJSON(requestParameters["creationProject"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+      body: CreationProjectToJSON(requestParameters["creationProject"]),
+    };
+  }
+
+  /**
+   * Create new project for the specified account
+   */
+  async createOneProjectRaw(requestParameters: CreateOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+    const requestOptions = await this.createOneProjectRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectFromJSON(jsonValue));
   }
@@ -194,12 +204,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create new project transaction for the specified account
+   * Creates request options for createOneProjectTransaction without sending the request
    */
-  async createOneProjectTransactionRaw(
-    requestParameters: CreateOneProjectTransactionRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+  async createOneProjectTransactionRequestOpts(requestParameters: CreateOneProjectTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling createOneProjectTransaction().');
     }
@@ -218,16 +225,24 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreationProjectTransactionToJSON(requestParameters["creationProjectTransaction"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+      body: CreationProjectTransactionToJSON(requestParameters["creationProjectTransaction"]),
+    };
+  }
+
+  /**
+   * Create new project transaction for the specified account
+   */
+  async createOneProjectTransactionRaw(
+    requestParameters: CreateOneProjectTransactionRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+    const requestOptions = await this.createOneProjectTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectTransactionFromJSON(jsonValue));
   }
@@ -244,9 +259,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete one project by id for the specified account
+   * Creates request options for deleteOneProject without sending the request
    */
-  async deleteOneProjectRaw(requestParameters: DeleteOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+  async deleteOneProjectRequestOpts(requestParameters: DeleteOneProjectRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling deleteOneProject().');
     }
@@ -263,15 +278,20 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "DELETE",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "DELETE",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Delete one project by id for the specified account
+   */
+  async deleteOneProjectRaw(requestParameters: DeleteOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+    const requestOptions = await this.deleteOneProjectRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectFromJSON(jsonValue));
   }
@@ -285,12 +305,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete one project transaction by id
+   * Creates request options for deleteOneProjectTransaction without sending the request
    */
-  async deleteOneProjectTransactionRaw(
-    requestParameters: DeleteOneProjectTransactionRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+  async deleteOneProjectTransactionRequestOpts(requestParameters: DeleteOneProjectTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling deleteOneProjectTransaction().');
     }
@@ -312,15 +329,23 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
     urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters["transactionId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "DELETE",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "DELETE",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Delete one project transaction by id
+   */
+  async deleteOneProjectTransactionRaw(
+    requestParameters: DeleteOneProjectTransactionRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+    const requestOptions = await this.deleteOneProjectTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectTransactionFromJSON(jsonValue));
   }
@@ -337,12 +362,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Download project invoice as PDF
+   * Creates request options for downloadProjectInvoicePDF without sending the request
    */
-  async downloadProjectInvoicePDFRaw(
-    requestParameters: DownloadProjectInvoicePDFRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Blob>> {
+  async downloadProjectInvoicePDFRequestOpts(requestParameters: DownloadProjectInvoicePDFRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling downloadProjectInvoicePDF().');
     }
@@ -359,15 +381,23 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Download project invoice as PDF
+   */
+  async downloadProjectInvoicePDFRaw(
+    requestParameters: DownloadProjectInvoicePDFRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Blob>> {
+    const requestOptions = await this.downloadProjectInvoicePDFRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.BlobApiResponse(response);
   }
@@ -381,12 +411,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Download project statistics as PDF
+   * Creates request options for downloadProjectStatisticsPDF without sending the request
    */
-  async downloadProjectStatisticsPDFRaw(
-    requestParameters: DownloadProjectStatisticsPDFRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Blob>> {
+  async downloadProjectStatisticsPDFRequestOpts(requestParameters: DownloadProjectStatisticsPDFRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling downloadProjectStatisticsPDF().');
     }
@@ -403,15 +430,23 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Download project statistics as PDF
+   */
+  async downloadProjectStatisticsPDFRaw(
+    requestParameters: DownloadProjectStatisticsPDFRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Blob>> {
+    const requestOptions = await this.downloadProjectStatisticsPDFRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.BlobApiResponse(response);
   }
@@ -425,12 +460,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Download project summary as PDF
+   * Creates request options for downloadProjectSummaryPDF without sending the request
    */
-  async downloadProjectSummaryPDFRaw(
-    requestParameters: DownloadProjectSummaryPDFRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Blob>> {
+  async downloadProjectSummaryPDFRequestOpts(requestParameters: DownloadProjectSummaryPDFRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling downloadProjectSummaryPDF().');
     }
@@ -447,15 +479,23 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Download project summary as PDF
+   */
+  async downloadProjectSummaryPDFRaw(
+    requestParameters: DownloadProjectSummaryPDFRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Blob>> {
+    const requestOptions = await this.downloadProjectSummaryPDFRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.BlobApiResponse(response);
   }
@@ -469,12 +509,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all project transactions for the specified project
+   * Creates request options for getAllProjectTransactions without sending the request
    */
-  async getAllProjectTransactionsRaw(
-    requestParameters: GetAllProjectTransactionsRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<ProjectTransaction>>> {
+  async getAllProjectTransactionsRequestOpts(requestParameters: GetAllProjectTransactionsRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getAllProjectTransactions().');
     }
@@ -491,15 +528,23 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all project transactions for the specified project
+   */
+  async getAllProjectTransactionsRaw(
+    requestParameters: GetAllProjectTransactionsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<ProjectTransaction>>> {
+    const requestOptions = await this.getAllProjectTransactionsRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ProjectTransactionFromJSON));
   }
@@ -516,9 +561,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all projects for the specified account
+   * Creates request options for getAllProjects without sending the request
    */
-  async getAllProjectsRaw(requestParameters: GetAllProjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Project>>> {
+  async getAllProjectsRequestOpts(requestParameters: GetAllProjectsRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getAllProjects().');
     }
@@ -542,15 +587,20 @@ export class ProjectApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/project`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all projects for the specified account
+   */
+  async getAllProjectsRaw(requestParameters: GetAllProjectsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Array<Project>>> {
+    const requestOptions = await this.getAllProjectsRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(ProjectFromJSON));
   }
@@ -564,9 +614,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one project by id for the specified account
+   * Creates request options for getOneProject without sending the request
    */
-  async getOneProjectRaw(requestParameters: GetOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+  async getOneProjectRequestOpts(requestParameters: GetOneProjectRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getOneProject().');
     }
@@ -583,15 +633,20 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get one project by id for the specified account
+   */
+  async getOneProjectRaw(requestParameters: GetOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+    const requestOptions = await this.getOneProjectRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectFromJSON(jsonValue));
   }
@@ -605,12 +660,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get one project transaction by id
+   * Creates request options for getOneProjectTransaction without sending the request
    */
-  async getOneProjectTransactionRaw(
-    requestParameters: GetOneProjectTransactionRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+  async getOneProjectTransactionRequestOpts(requestParameters: GetOneProjectTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getOneProjectTransaction().');
     }
@@ -632,15 +684,23 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
     urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters["transactionId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get one project transaction by id
+   */
+  async getOneProjectTransactionRaw(
+    requestParameters: GetOneProjectTransactionRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+    const requestOptions = await this.getOneProjectTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectTransactionFromJSON(jsonValue));
   }
@@ -654,12 +714,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get statistics for one project
+   * Creates request options for getProjectStatistics without sending the request
    */
-  async getProjectStatisticsRaw(
-    requestParameters: GetProjectStatisticsRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ProjectStatistics>> {
+  async getProjectStatisticsRequestOpts(requestParameters: GetProjectStatisticsRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getProjectStatistics().');
     }
@@ -676,15 +733,23 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get statistics for one project
+   */
+  async getProjectStatisticsRaw(
+    requestParameters: GetProjectStatisticsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ProjectStatistics>> {
+    const requestOptions = await this.getProjectStatisticsRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectStatisticsFromJSON(jsonValue));
   }
@@ -698,9 +763,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Update one project by id for the specified account
+   * Creates request options for updateOneProject without sending the request
    */
-  async updateOneProjectRaw(requestParameters: UpdateOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+  async updateOneProjectRequestOpts(requestParameters: UpdateOneProjectRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling updateOneProject().');
     }
@@ -719,16 +784,21 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "PUT",
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreationProjectToJSON(requestParameters["creationProject"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "PUT",
+      headers: headerParameters,
+      query: queryParameters,
+      body: CreationProjectToJSON(requestParameters["creationProject"]),
+    };
+  }
+
+  /**
+   * Update one project by id for the specified account
+   */
+  async updateOneProjectRaw(requestParameters: UpdateOneProjectRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Project>> {
+    const requestOptions = await this.updateOneProjectRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectFromJSON(jsonValue));
   }
@@ -742,12 +812,9 @@ export class ProjectApi extends runtime.BaseAPI {
   }
 
   /**
-   * Update one project transaction by id
+   * Creates request options for updateOneProjectTransaction without sending the request
    */
-  async updateOneProjectTransactionRaw(
-    requestParameters: UpdateOneProjectTransactionRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+  async updateOneProjectTransactionRequestOpts(requestParameters: UpdateOneProjectTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling updateOneProjectTransaction().');
     }
@@ -771,16 +838,24 @@ export class ProjectApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"projectId"}}`, encodeURIComponent(String(requestParameters["projectId"])));
     urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters["transactionId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "PUT",
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreationProjectTransactionToJSON(requestParameters["creationProjectTransaction"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "PUT",
+      headers: headerParameters,
+      query: queryParameters,
+      body: CreationProjectTransactionToJSON(requestParameters["creationProjectTransaction"]),
+    };
+  }
+
+  /**
+   * Update one project transaction by id
+   */
+  async updateOneProjectTransactionRaw(
+    requestParameters: UpdateOneProjectTransactionRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ProjectTransaction>> {
+    const requestOptions = await this.updateOneProjectTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ProjectTransactionFromJSON(jsonValue));
   }

@@ -11,7 +11,12 @@
     "migrate:dev": "prisma migrate dev",
     "migrate:prod": "prisma migrate deploy",
     "gen:client": "./generate-client.sh",
-    "studio": "prisma studio"
+    "studio": "prisma studio",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "test:integration": "dotenv -e .env.test -- npx prisma migrate deploy && dotenv -e .env.test -- vitest run --config vitest.integration.config.ts",
+    "test:all": "npm run test && npx dotenv -e .env.test -- npx prisma migrate deploy && npx dotenv -e .env.test -- npm run test:integration && rm -f test.db"
   },
   "keywords": [],
   "author": "",
@@ -29,12 +34,16 @@
     "@types/pdfkit": "^0.17.5",
     "@types/swagger-ui-express": "^4.1.8",
     "@types/uuid": "^10.0.0",
+    "@vitest/coverage-v8": "^4.0.18",
     "dotenv": "^16.4.7",
+    "dotenv-cli": "^11.0.0",
     "module-alias": "^2.2.3",
     "nodemon": "^3.1.9",
     "prettier": "^3.5.3",
     "ts-node": "10.9.1",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vite-tsconfig-paths": "^6.1.1",
+    "vitest": "^4.0.18"
   },
   "dependencies": {
     "@prisma/client": "^6.5.0",
@@ -43,10 +52,11 @@
     "esm-module-alias": "^2.2.1",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "multer": "^1.4.5-lts.2",
+    "multer": "^2.1.0",
     "pdfkit": "^0.17.2",
     "prisma": "^6.5.0",
     "swagger-ui-express": "^5.0.1",
+    "tslog": "^4.10.2",
     "uuid": "^11.1.0",
     "zod": "^4.3.6"
   },

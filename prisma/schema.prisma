@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "sqlite"
-  url      = "file:./dev.db"
+  url      = env("DATABASE_URL")
 }
 
 model Account {
@@ -56,7 +56,7 @@ model File {
 
 model Wallet {
   id                    String        @id @default(uuid())
-  name                  String        @unique
+  name                  String
   type                  String
   description           String?
   amount                Int
@@ -72,6 +72,8 @@ model Wallet {
   goals                 Goal[]
   transactions          Transaction[]
   account               Account       @relation(fields: [accountId], references: [id], onDelete: Cascade)
+
+  @@unique([name, accountId])
 }
 
 model Label {

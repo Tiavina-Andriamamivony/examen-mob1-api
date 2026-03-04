@@ -26,16 +26,28 @@ export interface Wallet {
    * @type {string}
    * @memberof Wallet
    */
+  id?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Wallet
+   */
+  accountId?: string;
+  /**
+   *
+   * @type {string}
+   * @memberof Wallet
+   */
   name?: string;
   /**
    *
    * @type {string}
    * @memberof Wallet
    */
-  description?: string;
+  description?: string | null;
   /**
    *
-   * @type {string}
+   * @type {WalletTypeEnum}
    * @memberof Wallet
    */
   type?: WalletTypeEnum;
@@ -53,28 +65,16 @@ export interface Wallet {
   iconRef?: string;
   /**
    *
-   * @type {string}
+   * @type {number}
    * @memberof Wallet
    */
-  id?: string;
-  /**
-   *
-   * @type {string}
-   * @memberof Wallet
-   */
-  accountId?: string;
+  amount?: number;
   /**
    *
    * @type {boolean}
    * @memberof Wallet
    */
   isActive?: boolean;
-  /**
-   *
-   * @type {number}
-   * @memberof Wallet
-   */
-  amount?: number;
   /**
    *
    * @type {WalletAutomaticIncome}
@@ -110,15 +110,15 @@ export function WalletFromJSONTyped(json: any, ignoreDiscriminator: boolean): Wa
     return json;
   }
   return {
+    id: json["id"] == null ? undefined : json["id"],
+    accountId: json["accountId"] == null ? undefined : json["accountId"],
     name: json["name"] == null ? undefined : json["name"],
     description: json["description"] == null ? undefined : json["description"],
     type: json["type"] == null ? undefined : json["type"],
     color: json["color"] == null ? undefined : json["color"],
     iconRef: json["iconRef"] == null ? undefined : json["iconRef"],
-    id: json["id"] == null ? undefined : json["id"],
-    accountId: json["accountId"] == null ? undefined : json["accountId"],
-    isActive: json["isActive"] == null ? undefined : json["isActive"],
     amount: json["amount"] == null ? undefined : json["amount"],
+    isActive: json["isActive"] == null ? undefined : json["isActive"],
     walletAutomaticIncome: json["walletAutomaticIncome"] == null ? undefined : WalletAutomaticIncomeFromJSON(json["walletAutomaticIncome"]),
   };
 }
@@ -133,15 +133,15 @@ export function WalletToJSONTyped(value?: Wallet | null, ignoreDiscriminator: bo
   }
 
   return {
+    id: value["id"],
+    accountId: value["accountId"],
     name: value["name"],
     description: value["description"],
     type: value["type"],
     color: value["color"],
     iconRef: value["iconRef"],
-    id: value["id"],
-    accountId: value["accountId"],
-    isActive: value["isActive"],
     amount: value["amount"],
+    isActive: value["isActive"],
     walletAutomaticIncome: WalletAutomaticIncomeToJSON(value["walletAutomaticIncome"]),
   };
 }

@@ -6,3 +6,5 @@ export * from "./filter-if-not-null";
 export * from "./get-pagination";
 export * from "./get-values-from-query";
 export * from "./map-params";
+export * from "./handler";
+export * from "./logger";

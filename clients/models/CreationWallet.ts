@@ -24,19 +24,19 @@ export interface CreationWallet {
    * @type {string}
    * @memberof CreationWallet
    */
-  name?: string;
+  name: string;
   /**
    *
    * @type {string}
    * @memberof CreationWallet
    */
-  description?: string;
+  description?: string | null;
   /**
    *
-   * @type {string}
+   * @type {CreationWalletTypeEnum}
    * @memberof CreationWallet
    */
-  type?: CreationWalletTypeEnum;
+  type: CreationWalletTypeEnum;
   /**
    *
    * @type {string}
@@ -49,6 +49,12 @@ export interface CreationWallet {
    * @memberof CreationWallet
    */
   iconRef?: string;
+  /**
+   *
+   * @type {number}
+   * @memberof CreationWallet
+   */
+  amount: number;
 }
 
 /**
@@ -66,6 +72,9 @@ export type CreationWalletTypeEnum = (typeof CreationWalletTypeEnum)[keyof typeo
  * Check if a given object implements the CreationWallet interface.
  */
 export function instanceOfCreationWallet(value: object): value is CreationWallet {
+  if (!("name" in value) || value["name"] === undefined) return false;
+  if (!("type" in value) || value["type"] === undefined) return false;
+  if (!("amount" in value) || value["amount"] === undefined) return false;
   return true;
 }
 
@@ -78,11 +87,12 @@ export function CreationWalletFromJSONTyped(json: any, ignoreDiscriminator: bool
     return json;
   }
   return {
-    name: json["name"] == null ? undefined : json["name"],
+    name: json["name"],
     description: json["description"] == null ? undefined : json["description"],
-    type: json["type"] == null ? undefined : json["type"],
+    type: json["type"],
     color: json["color"] == null ? undefined : json["color"],
     iconRef: json["iconRef"] == null ? undefined : json["iconRef"],
+    amount: json["amount"],
   };
 }
 
@@ -101,5 +111,6 @@ export function CreationWalletToJSONTyped(value?: CreationWallet | null, ignoreD
     type: value["type"],
     color: value["color"],
     iconRef: value["iconRef"],
+    amount: value["amount"],
   };
 }

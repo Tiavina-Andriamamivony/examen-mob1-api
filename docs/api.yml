@@ -296,10 +296,12 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/Wallet"
+
   /account/{accountId}/wallet/{walletId}/archive:
     post:
       tags:
         - wallet
+      operationId: archiveOneWallet
       parameters:
         - $ref: "#/components/parameters/AccountId"
         - $ref: "#/components/parameters/WalletId"
@@ -310,8 +312,7 @@ paths:
           content:
             application/json:
               schema:
-                allOf:
-                  - $ref: "#/components/schemas/Wallet"
+                $ref: "#/components/schemas/Wallet"
 
   /account/{accountId}/wallet/{walletId}/automaticIncome:
     put:
@@ -1146,30 +1147,20 @@ components:
         id:
           type: string
           format: uuid
-    WalletAutomaticIncome:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - NOT_SPECIFIED
-            - MENSUAL
-        amount:
-          type: number
-        paymentDay:
-          type: number
-          description: |
-            one day in a month where the new payment will be add to the current wallet
-            only work if the type is MENSUAL
 
     CreationWallet:
       type: object
+      required:
+        - name
+        - type
+        - amount
       properties:
         name:
           type: string
           example: Personal
         description:
           type: string
+          nullable: true
         type:
           type: string
           enum:
@@ -1183,9 +1174,18 @@ components:
           default: "#00ff00"
         iconRef:
           type: string
+        amount:
+          type: number
+          format: double
+          minimum: 0
 
     UpdateWallet:
       type: object
+      required:
+        - name
+        - type
+        - isActive
+        - accountId
       properties:
         id:
           type: string
@@ -1197,17 +1197,62 @@ components:
           type: boolean
       allOf:
         - $ref: "#/components/schemas/CreationWallet"
+
     Wallet:
       type: object
-      allOf:
-        - $ref: "#/components/schemas/UpdateWallet"
       properties:
+        id:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+          nullable: true
+        type:
+          type: string
+          enum:
+            - CASH
+            - MOBILE_MONEY
+            - BANK
+            - DEBT
+        color:
+          type: string
+        iconRef:
+          type: string
         amount:
           type: number
           format: double
+        isActive:
+          type: boolean
         walletAutomaticIncome:
-          allOf:
-            - $ref: "#/components/schemas/WalletAutomaticIncome"
+          $ref: "#/components/schemas/WalletAutomaticIncome"
+
+    WalletAutomaticIncome:
+      type: object
+      required:
+        - type
+        - amount
+        - paymentDay
+      properties:
+        type:
+          type: string
+          enum:
+            - NOT_SPECIFIED
+            - MENSUAL
+        amount:
+          type: number
+          minimum: 0
+        paymentDay:
+          type: number
+          minimum: 1
+          maximum: 28
+          description: |
+            Day of the month when the automatic income is added to the wallet.
+            Only applies when type is MENSUAL.
     CreationLabel:
       type: object
       properties:

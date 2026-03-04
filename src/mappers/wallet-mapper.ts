@@ -3,67 +3,66 @@ import { Wallet as PrismaWallet } from "@prisma/client";
 import { v4 } from "uuid";
 
 import { PrismaPaginationInfo } from "@/types";
-import { calculatePagination, copyObject } from "@/utilities";
+import { calculatePagination } from "@/utilities";
 
 export class WalletMapper {
-  public static toRest(wallet: PrismaWallet) {
-    const mapped: RestWallet = {
+  static toRest(wallet: PrismaWallet): RestWallet {
+    return {
       id: wallet.id,
       name: wallet.name,
       amount: wallet.amount,
       isActive: wallet.isActive,
       accountId: wallet.accountId,
-      description: wallet.description,
+      description: wallet.description ?? undefined,
+      color: wallet.color,
+      iconRef: wallet.iconRef ?? undefined,
       type: wallet.type as WalletTypeEnum,
       walletAutomaticIncome: {
-        amount: wallet.automaticIncomeAmount,
-        paymentDay: wallet.automaticIncomeDay,
         type: wallet.haveAutomaticIncome ? "MENSUAL" : "NOT_SPECIFIED",
+        amount: wallet.automaticIncomeAmount ?? undefined,
+        paymentDay: wallet.automaticIncomeDay ?? undefined,
       },
     };
-    return mapped;
   }
 
-  public static toDomain(wallet: RestWallet): PrismaWallet {
-    const mapped = {
-      accountId: wallet.accountId || "",
-      amount: wallet.amount || 0,
-      description: wallet.description || "",
-      id: wallet.id || "",
-      name: wallet.name || "",
-      isActive: !!wallet.isActive,
-      type: wallet.type || "",
-    };
-    return mapped as PrismaWallet;
-  }
-
-  public static create(accountId: string, wallet: RestWallet): PrismaWallet {
-    const mapped = {
-      accountId,
-      amount: wallet.amount || 0,
-      description: wallet.description || "",
+  static create(accountId: string, wallet: RestWallet): PrismaWallet {
+    return {
       id: v4(),
-      name: wallet.name || "",
-      isActive: !!wallet.isActive,
-      type: wallet.type || "",
-    };
-    return mapped as PrismaWallet;
+      accountId,
+      name: wallet.name ?? "",
+      description: wallet.description ?? "",
+      type: wallet.type ?? "CASH",
+      amount: wallet.amount ?? 0,
+      color: wallet.color ?? "#00ff00",
+      iconRef: wallet.iconRef ?? null,
+      isActive: true,
+      isArchived: false,
+      haveAutomaticIncome: false,
+      automaticIncomeAmount: 0,
+      automaticIncomeDay: 1,
+      createdAt: new Date(),
+    } as PrismaWallet;
   }
 
-  public static update(accountId: string, wallet: RestWallet): PrismaWallet {
-    const mapped = copyObject(wallet);
-    delete mapped.amount;
-    mapped.accountId = accountId;
-    return mapped as PrismaWallet;
+  static update(accountId: string, wallet: RestWallet): Partial<PrismaWallet> {
+    return {
+      accountId,
+      name: wallet.name,
+      description: wallet.description ?? "",
+      type: wallet.type,
+      color: wallet.color ?? "#00ff00",
+      iconRef: wallet.iconRef ?? null,
+      isActive: wallet.isActive,
+    };
   }
 
-  public static toListResponse(wallets: PrismaWallet[], prismaPaginationInfo: PrismaPaginationInfo) {
-    const mapped = wallets.map(this.toRest.bind(this));
-    const listResponse: GetAllWallets200Response = {
-      pagination: calculatePagination(prismaPaginationInfo),
-      values: mapped,
+  static toListResponse(
+    wallets: PrismaWallet[],
+    pagination: PrismaPaginationInfo
+  ): GetAllWallets200Response {
+    return {
+      pagination: calculatePagination(pagination),
+      values: wallets.map(this.toRest.bind(this)),
     };
-
-    return listResponse;
   }
 }

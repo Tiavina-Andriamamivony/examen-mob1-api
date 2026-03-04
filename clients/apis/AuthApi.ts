@@ -51,12 +51,9 @@ export interface SignUpRequest {
  */
 export class AuthApi extends runtime.BaseAPI {
   /**
-   * Confirm password reset with token and new password
+   * Creates request options for confirmPasswordReset without sending the request
    */
-  async confirmPasswordResetRaw(
-    requestParameters: ConfirmPasswordResetRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ConfirmPasswordReset200Response>> {
+  async confirmPasswordResetRequestOpts(requestParameters: ConfirmPasswordResetRequest): Promise<runtime.RequestOpts> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -65,16 +62,24 @@ export class AuthApi extends runtime.BaseAPI {
 
     let urlPath = `/auth/reset-password/confirm`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-        body: ResetPasswordConfirmToJSON(requestParameters["resetPasswordConfirm"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+      body: ResetPasswordConfirmToJSON(requestParameters["resetPasswordConfirm"]),
+    };
+  }
+
+  /**
+   * Confirm password reset with token and new password
+   */
+  async confirmPasswordResetRaw(
+    requestParameters: ConfirmPasswordResetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ConfirmPasswordReset200Response>> {
+    const requestOptions = await this.confirmPasswordResetRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ConfirmPasswordReset200ResponseFromJSON(jsonValue));
   }
@@ -91,12 +96,9 @@ export class AuthApi extends runtime.BaseAPI {
   }
 
   /**
-   * Request a password reset token
+   * Creates request options for requestPasswordReset without sending the request
    */
-  async requestPasswordResetRaw(
-    requestParameters: RequestPasswordResetRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<ResetPasswordResponse>> {
+  async requestPasswordResetRequestOpts(requestParameters: RequestPasswordResetRequest): Promise<runtime.RequestOpts> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -105,16 +107,24 @@ export class AuthApi extends runtime.BaseAPI {
 
     let urlPath = `/auth/reset-password`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-        body: ResetPasswordRequestToJSON(requestParameters["resetPasswordRequest"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+      body: ResetPasswordRequestToJSON(requestParameters["resetPasswordRequest"]),
+    };
+  }
+
+  /**
+   * Request a password reset token
+   */
+  async requestPasswordResetRaw(
+    requestParameters: RequestPasswordResetRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<ResetPasswordResponse>> {
+    const requestOptions = await this.requestPasswordResetRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => ResetPasswordResponseFromJSON(jsonValue));
   }
@@ -128,9 +138,9 @@ export class AuthApi extends runtime.BaseAPI {
   }
 
   /**
-   * Login with and existing account
+   * Creates request options for signIn without sending the request
    */
-  async signInRaw(requestParameters: SignInRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignInResult>> {
+  async signInRequestOpts(requestParameters: SignInRequest): Promise<runtime.RequestOpts> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -139,16 +149,21 @@ export class AuthApi extends runtime.BaseAPI {
 
     let urlPath = `/auth/sign-in`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-        body: CredentialsToJSON(requestParameters["credentials"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+      body: CredentialsToJSON(requestParameters["credentials"]),
+    };
+  }
+
+  /**
+   * Login with and existing account
+   */
+  async signInRaw(requestParameters: SignInRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignInResult>> {
+    const requestOptions = await this.signInRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => SignInResultFromJSON(jsonValue));
   }
@@ -162,9 +177,9 @@ export class AuthApi extends runtime.BaseAPI {
   }
 
   /**
-   * Create new account with basic user role
+   * Creates request options for signUp without sending the request
    */
-  async signUpRaw(requestParameters: SignUpRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignUpResult>> {
+  async signUpRequestOpts(requestParameters: SignUpRequest): Promise<runtime.RequestOpts> {
     const queryParameters: any = {};
 
     const headerParameters: runtime.HTTPHeaders = {};
@@ -173,16 +188,21 @@ export class AuthApi extends runtime.BaseAPI {
 
     let urlPath = `/auth/sign-up`;
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-        body: CredentialsToJSON(requestParameters["credentials"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+      body: CredentialsToJSON(requestParameters["credentials"]),
+    };
+  }
+
+  /**
+   * Create new account with basic user role
+   */
+  async signUpRaw(requestParameters: SignUpRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<SignUpResult>> {
+    const requestOptions = await this.signUpRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => SignUpResultFromJSON(jsonValue));
   }

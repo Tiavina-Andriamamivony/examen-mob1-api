@@ -2,18 +2,18 @@
 
 All URIs are relative to _http://localhost:8080_
 
-| Method                                                                                                  | HTTP request                                                   | Description                                                  |
-| ------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ |
-| [**accountAccountIdWalletWalletIdArchivePost**](WalletApi.md#accountaccountidwalletwalletidarchivepost) | **POST** /account/{accountId}/wallet/{walletId}/archive        | Archive one wallet by id                                     |
-| [**createOneWallet**](WalletApi.md#createonewallet)                                                     | **POST** /account/{accountId}/wallet                           | Create new wallet for the specified account                  |
-| [**getAllWallets**](WalletApi.md#getallwallets)                                                         | **GET** /account/{accountId}/wallet                            | Get all disponibles wallet for the specified account         |
-| [**getOneWallet**](WalletApi.md#getonewallet)                                                           | **GET** /account/{accountId}/wallet/{walletId}                 | Get get one wallet by id for the specified account           |
-| [**updateOneWallet**](WalletApi.md#updateonewallet)                                                     | **PUT** /account/{accountId}/wallet/{walletId}                 | Update one wallet by id for the specified account            |
-| [**updateOneWalletAutomaticIncome**](WalletApi.md#updateonewalletautomaticincome)                       | **PUT** /account/{accountId}/wallet/{walletId}/automaticIncome | Update one wallet automatic income by walletId and accountId |
+| Method                                                                            | HTTP request                                                   | Description                                                  |
+| --------------------------------------------------------------------------------- | -------------------------------------------------------------- | ------------------------------------------------------------ |
+| [**archiveOneWallet**](WalletApi.md#archiveonewallet)                             | **POST** /account/{accountId}/wallet/{walletId}/archive        | Archive one wallet by id                                     |
+| [**createOneWallet**](WalletApi.md#createonewallet)                               | **POST** /account/{accountId}/wallet                           | Create new wallet for the specified account                  |
+| [**getAllWallets**](WalletApi.md#getallwallets)                                   | **GET** /account/{accountId}/wallet                            | Get all disponibles wallet for the specified account         |
+| [**getOneWallet**](WalletApi.md#getonewallet)                                     | **GET** /account/{accountId}/wallet/{walletId}                 | Get get one wallet by id for the specified account           |
+| [**updateOneWallet**](WalletApi.md#updateonewallet)                               | **PUT** /account/{accountId}/wallet/{walletId}                 | Update one wallet by id for the specified account            |
+| [**updateOneWalletAutomaticIncome**](WalletApi.md#updateonewalletautomaticincome) | **PUT** /account/{accountId}/wallet/{walletId}/automaticIncome | Update one wallet automatic income by walletId and accountId |
 
-## accountAccountIdWalletWalletIdArchivePost
+## archiveOneWallet
 
-> Wallet accountAccountIdWalletWalletIdArchivePost(accountId, walletId)
+> Wallet archiveOneWallet(accountId, walletId)
 
 Archive one wallet by id
 
@@ -24,7 +24,7 @@ import {
   Configuration,
   WalletApi,
 } from '';
-import type { AccountAccountIdWalletWalletIdArchivePostRequest } from '';
+import type { ArchiveOneWalletRequest } from '';
 
 async function example() {
   console.log("🚀 Testing  SDK...");
@@ -35,10 +35,10 @@ async function example() {
     accountId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // string
     walletId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
-  } satisfies AccountAccountIdWalletWalletIdArchivePostRequest;
+  } satisfies ArchiveOneWalletRequest;
 
   try {
-    const data = await api.accountAccountIdWalletWalletIdArchivePost(body);
+    const data = await api.archiveOneWallet(body);
     console.log(data);
   } catch (error) {
     console.error(error);
