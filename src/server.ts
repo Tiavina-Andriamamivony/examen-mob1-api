@@ -1,5 +1,5 @@
-import * as cors from "cors";
-import * as express from "express";
+import cors from "cors";
+import express from "express";
 
 import { errorHandler, requestLogger, securityHandler } from "@/middlewares";
 import { authRouter, goalListRouter, goalRouter, labelRouter, projectRouter, swaggerRouter, transactionListRouter, transactionRouter } from "@/routes";
