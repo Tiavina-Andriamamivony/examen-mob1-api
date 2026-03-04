@@ -1,10 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
 import { PrismaClient } from "@prisma/client";
-import { WalletServices } from "@/services/wallet-services";
-import { BadRequestError, NotFoundError } from "@/errors";
 import { v4 } from "uuid";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
+
+import { BadRequestError, NotFoundError } from "@/errors";
+import { WalletServices } from "@/services/wallet-services";
+
+import { cleanDatabase, createTestAccount } from "../helpers/db.helper";
 import { setupIntegrationTests, prisma as testPrisma } from "../setup";
-import { createTestAccount, cleanDatabase } from "../helpers/db.helper";
 
 setupIntegrationTests();
 
@@ -57,7 +59,7 @@ describe("WalletServices Integration", () => {
           name: "Personal",
           type: "BANK",
           amount: 500,
-        })
+        }),
       ).rejects.toThrow(BadRequestError);
     });
 
@@ -87,7 +89,7 @@ describe("WalletServices Integration", () => {
         isActive: true,
         color: "#22c55e",
         amount: 1000,
-     });
+      });
 
       expect(result.name).toBe("Personal Updated");
       expect(result.type).toBe("BANK");
@@ -105,7 +107,7 @@ describe("WalletServices Integration", () => {
           type: "CASH",
           isActive: true,
           amount: 100,
-        })
+        }),
       ).rejects.toThrow(NotFoundError);
     });
 
@@ -121,7 +123,7 @@ describe("WalletServices Integration", () => {
           type: "CASH",
           isActive: true,
           amount: 100,
-        })
+        }),
       ).rejects.toThrow(BadRequestError);
     });
 
@@ -184,7 +186,7 @@ describe("WalletServices Integration", () => {
           type: "MENSUAL",
           amount: 500,
           paymentDay: 15,
-        })
+        }),
       ).rejects.toThrow(NotFoundError);
     });
   });
@@ -200,24 +202,21 @@ describe("WalletServices Integration", () => {
     });
 
     it("should throw NotFoundError when wallet does not exist", async () => {
-      await expect(WalletServices.getOneById(accountId, v4()))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.getOneById(accountId, v4())).rejects.toThrow(NotFoundError);
     });
 
     it("should throw NotFoundError when wallet belongs to another account", async () => {
       const otherAccount = await createTestAccount(prisma);
       const created = await WalletServices.create(otherAccount.id, { name: "Personal", type: "CASH", amount: 1000 });
 
-      await expect(WalletServices.getOneById(accountId, created.id))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.getOneById(accountId, created.id)).rejects.toThrow(NotFoundError);
     });
 
     it("should throw NotFoundError when wallet is archived", async () => {
       const created = await WalletServices.create(accountId, { name: "Personal", type: "CASH", amount: 1000 });
       await WalletServices.archiveOneById(accountId, created.id);
 
-      await expect(WalletServices.getOneById(accountId, created.id))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.getOneById(accountId, created.id)).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -234,16 +233,14 @@ describe("WalletServices Integration", () => {
     });
 
     it("should throw NotFoundError when wallet does not exist", async () => {
-      await expect(WalletServices.archiveOneById(accountId, v4()))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.archiveOneById(accountId, v4())).rejects.toThrow(NotFoundError);
     });
 
     it("should throw NotFoundError when wallet is already archived", async () => {
       const created = await WalletServices.create(accountId, { name: "Personal", type: "CASH", amount: 1000 });
       await WalletServices.archiveOneById(accountId, created.id);
 
-      await expect(WalletServices.archiveOneById(accountId, created.id))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.archiveOneById(accountId, created.id)).rejects.toThrow(NotFoundError);
     });
   });
 

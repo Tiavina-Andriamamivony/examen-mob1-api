@@ -1,4 +1,4 @@
-import { CreationProject, Project as RestProject, ProjectStatistics, ProjectTransaction as RestProjectTransaction } from "@clients";
+import { CreationProject, ProjectStatistics, Project as RestProject, ProjectTransaction as RestProjectTransaction } from "@clients";
 import { Project as PrismaProject, ProjectTransaction as PrismaProjectTransaction } from "@prisma/client";
 import { v4 } from "uuid";
 

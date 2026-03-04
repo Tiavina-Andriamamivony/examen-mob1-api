@@ -1,7 +1,7 @@
 import { CreationWallet, UpdateWallet, WalletAutomaticIncome } from "@clients";
 
 import { getPrismaClient } from "@/configs";
-import { NotFoundError, BadRequestError } from "@/errors";
+import { BadRequestError, NotFoundError } from "@/errors";
 import { WalletMapper } from "@/mappers";
 import { ListFilters, NameFilter, WalletFilter } from "@/types";
 import { filterIfNotNull } from "@/utilities";
@@ -40,11 +40,7 @@ export class WalletServices {
     });
   }
 
-  static async updateAutomaticIncome(
-    accountId: string,
-    walletId: string,
-    automaticIncome: WalletAutomaticIncome
-  ) {
+  static async updateAutomaticIncome(accountId: string, walletId: string, automaticIncome: WalletAutomaticIncome) {
     log.info(`Updating automatic income for wallet=${walletId} account=${accountId}`);
 
     const existing = await db().wallet.findFirst({ where: { id: walletId, accountId } });
@@ -75,7 +71,7 @@ export class WalletServices {
     log.info(`Archiving wallet id=${id} for account=${accountId}`);
 
     const wallet = await db().wallet.findFirst({ where: { id, accountId, isArchived: false } });
-    
+
     if (!wallet) throw new NotFoundError(`Wallet with id=${id} not found`);
 
     return db().wallet.update({
@@ -96,10 +92,7 @@ export class WalletServices {
       ...filterIfNotNull("type", walletType),
     };
 
-    const [values, count] = await db().$transaction([
-      db().wallet.findMany({ take: pageSize, skip: pageSize * (page - 1), where }),
-      db().wallet.count({ where }),
-    ]);
+    const [values, count] = await db().$transaction([db().wallet.findMany({ take: pageSize, skip: pageSize * (page - 1), where }), db().wallet.count({ where })]);
 
     return { values, count };
   }

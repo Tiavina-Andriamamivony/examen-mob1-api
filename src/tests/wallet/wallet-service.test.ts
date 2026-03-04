@@ -1,14 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { WalletServices } from "@/services/wallet-services";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
+import { getPrismaClient } from "@/configs";
 import { BadRequestError, NotFoundError } from "@/errors";
-import {
-  ACCOUNT_ID,
-  WALLET_ID,
-  makePrismaWallet,
-  makeCreationWallet,
-  makeUpdateWallet,
-  makeAutomaticIncome,
-} from "../fixtures/wallet.fixtures";
+import { WalletServices } from "@/services/wallet-services";
+
+import { ACCOUNT_ID, WALLET_ID, makeAutomaticIncome, makeCreationWallet, makePrismaWallet, makeUpdateWallet } from "../fixtures/wallet.fixtures";
 
 vi.mock("@/configs", () => ({
   getPrismaClient: vi.fn(),
@@ -20,8 +16,6 @@ vi.mock("@/mappers", () => ({
     update: vi.fn((accountId, wallet) => ({ ...wallet, accountId })),
   },
 }));
-
-import { getPrismaClient } from "@/configs";
 
 const mockDb = {
   wallet: {
@@ -58,8 +52,7 @@ describe("WalletServices", () => {
     it("should throw BadRequestError when name already exists", async () => {
       mockDb.wallet.findFirst.mockResolvedValue(makePrismaWallet());
 
-      await expect(WalletServices.create(ACCOUNT_ID, makeCreationWallet()))
-        .rejects.toThrow(BadRequestError);
+      await expect(WalletServices.create(ACCOUNT_ID, makeCreationWallet())).rejects.toThrow(BadRequestError);
       expect(mockDb.wallet.create).not.toHaveBeenCalled();
     });
   });
@@ -68,8 +61,8 @@ describe("WalletServices", () => {
     it("should update a wallet successfully", async () => {
       const wallet = makePrismaWallet();
       mockDb.wallet.findFirst
-        .mockResolvedValueOnce(wallet)   // exists check
-        .mockResolvedValueOnce(null);    // name conflict check
+        .mockResolvedValueOnce(wallet) // exists check
+        .mockResolvedValueOnce(null); // name conflict check
       mockDb.wallet.update.mockResolvedValue(wallet);
 
       const result = await WalletServices.update(ACCOUNT_ID, makeUpdateWallet());
@@ -81,18 +74,16 @@ describe("WalletServices", () => {
     it("should throw NotFoundError when wallet does not exist", async () => {
       mockDb.wallet.findFirst.mockResolvedValue(null);
 
-      await expect(WalletServices.update(ACCOUNT_ID, makeUpdateWallet()))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.update(ACCOUNT_ID, makeUpdateWallet())).rejects.toThrow(NotFoundError);
       expect(mockDb.wallet.update).not.toHaveBeenCalled();
     });
 
     it("should throw BadRequestError when name conflicts with another wallet", async () => {
       mockDb.wallet.findFirst
-        .mockResolvedValueOnce(makePrismaWallet())           // exists
+        .mockResolvedValueOnce(makePrismaWallet()) // exists
         .mockResolvedValueOnce(makePrismaWallet({ id: "other-wallet" })); // conflict
 
-      await expect(WalletServices.update(ACCOUNT_ID, makeUpdateWallet()))
-        .rejects.toThrow(BadRequestError);
+      await expect(WalletServices.update(ACCOUNT_ID, makeUpdateWallet())).rejects.toThrow(BadRequestError);
       expect(mockDb.wallet.update).not.toHaveBeenCalled();
     });
   });
@@ -108,11 +99,7 @@ describe("WalletServices", () => {
         automaticIncomeDay: 15,
       });
 
-      const result = await WalletServices.updateAutomaticIncome(
-        ACCOUNT_ID,
-        WALLET_ID,
-        makeAutomaticIncome()
-      );
+      const result = await WalletServices.updateAutomaticIncome(ACCOUNT_ID, WALLET_ID, makeAutomaticIncome());
 
       expect(mockDb.wallet.update).toHaveBeenCalledWith({
         data: {
@@ -129,25 +116,19 @@ describe("WalletServices", () => {
       mockDb.wallet.findFirst.mockResolvedValue(makePrismaWallet());
       mockDb.wallet.update.mockResolvedValue(makePrismaWallet({ haveAutomaticIncome: false }));
 
-      await WalletServices.updateAutomaticIncome(
-        ACCOUNT_ID,
-        WALLET_ID,
-        makeAutomaticIncome({ type: "NOT_SPECIFIED" })
-      );
+      await WalletServices.updateAutomaticIncome(ACCOUNT_ID, WALLET_ID, makeAutomaticIncome({ type: "NOT_SPECIFIED" }));
 
       expect(mockDb.wallet.update).toHaveBeenCalledWith(
         expect.objectContaining({
           data: expect.objectContaining({ haveAutomaticIncome: false }),
-        })
+        }),
       );
     });
 
     it("should throw NotFoundError when wallet does not exist", async () => {
       mockDb.wallet.findFirst.mockResolvedValue(null);
 
-      await expect(
-        WalletServices.updateAutomaticIncome(ACCOUNT_ID, WALLET_ID, makeAutomaticIncome())
-      ).rejects.toThrow(NotFoundError);
+      await expect(WalletServices.updateAutomaticIncome(ACCOUNT_ID, WALLET_ID, makeAutomaticIncome())).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -167,8 +148,7 @@ describe("WalletServices", () => {
     it("should throw NotFoundError when wallet does not exist", async () => {
       mockDb.wallet.findFirst.mockResolvedValue(null);
 
-      await expect(WalletServices.getOneById(ACCOUNT_ID, WALLET_ID))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.getOneById(ACCOUNT_ID, WALLET_ID)).rejects.toThrow(NotFoundError);
     });
   });
 
@@ -190,15 +170,13 @@ describe("WalletServices", () => {
     it("should throw NotFoundError when wallet does not exist", async () => {
       mockDb.wallet.findFirst.mockResolvedValue(null);
 
-      await expect(WalletServices.archiveOneById(ACCOUNT_ID, WALLET_ID))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.archiveOneById(ACCOUNT_ID, WALLET_ID)).rejects.toThrow(NotFoundError);
     });
 
     it("should throw NotFoundError when wallet is already archived", async () => {
       mockDb.wallet.findFirst.mockResolvedValue(null); // isArchived:false filter returns null
 
-      await expect(WalletServices.archiveOneById(ACCOUNT_ID, WALLET_ID))
-        .rejects.toThrow(NotFoundError);
+      await expect(WalletServices.archiveOneById(ACCOUNT_ID, WALLET_ID)).rejects.toThrow(NotFoundError);
       expect(mockDb.wallet.update).not.toHaveBeenCalled();
     });
   });

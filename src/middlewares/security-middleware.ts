@@ -1,7 +1,7 @@
 import { RequestHandler } from "express";
 import * as jwt from "jsonwebtoken";
 
-import { UnauthorizedError, ForbiddenError } from "@/errors";
+import { ForbiddenError, UnauthorizedError } from "@/errors";
 
 export const securityHandler: RequestHandler = (req, _res, next) => {
   const authHeader = req.headers.authorization;
