@@ -1,79 +1,74 @@
-import { RequestHandler } from "express";
-
-import { ApiError } from "@/errors";
-import { WalletMapper } from "@/mappers";
 import { WalletServices } from "@/services";
-import { getValuesFromQuery } from "@/utilities";
+import { WalletMapper } from "@/mappers";
 import { WalletValidator } from "@/validator";
+import { getValuesFromQuery } from "@/utilities";
+import { handler } from "@/utilities/handler";
+import { createLogger } from "@/utilities/logger";
+
+const log = createLogger("WalletController");
 
 export class WalletController {
-  static readonly create: RequestHandler = async (req, res, next) => {
-    try {
-      const accountId = (req as any).account.id;
-      WalletValidator.create(req.body);
-      const data = await WalletServices.create(accountId, req.body);
-      res.json(WalletMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
-  static readonly update: RequestHandler = async (req, res, next) => {
-    try {
-      const wallet = req.body;
-      const accountId = (req as any).account.id;
-      const { walletId } = req.params;
-      WalletValidator.update(accountId, wallet);
-      const data = await WalletServices.update(accountId, { ...wallet, id: walletId });
-      res.json(WalletMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
-  static readonly updateAutomaticIncome: RequestHandler = async (req, res, next) => {
-    try {
-      const walletAutomaticIncome = req.body;
-      const accountId = (req as any).account.id;
-      const { walletId } = req.params;
-      WalletValidator.updateAutomaticIncome(walletAutomaticIncome);
-      const data = await WalletServices.updateAutomaticIncome(accountId, walletId as string, walletAutomaticIncome);
-      res.json(WalletMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
-  static readonly getOne: RequestHandler = async (req, res, next) => {
-    try {
-      const { walletId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await WalletServices.getOneById(accountId, walletId as string);
-      res.json(WalletMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
-  static readonly archiveOne: RequestHandler = async (req, res, next) => {
-    try {
-      const { walletId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await WalletServices.getOneById(accountId, walletId as string);
-      res.json(WalletMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
-  static readonly getAll: RequestHandler = async (req, res, next) => {
-    try {
-      const { page, pageSize } = req as any;
-      const { isActive, name, walletType } = req.query as any;
+  static readonly create = handler(async ({ req, accountId }) => {
+    log.info(`Creating wallet for account=${accountId}`);
 
-      if (walletType && !["CASH", "MOBILE_MONEY", "BANK", "DEBT"].includes(walletType))
-        throw new ApiError(`Expected "CASH", "MOBILE_MONEY", "BANK", "DEBT" for walletType but got ${walletType} instead`, 400);
+    WalletValidator.create(req.body);
+    const data = await WalletServices.create(accountId, req.body);
 
-      const accountId = (req as any).account.id;
-      const data = await WalletServices.getAll(accountId, { page, pageSize, isActive: getValuesFromQuery.boolean("isActive", isActive), name, walletType });
-      res.json(WalletMapper.toListResponse(data.values, { page, pageSize, elementCount: data.count }));
-    } catch (err) {
-      next(err);
-    }
-  };
+    return WalletMapper.toRest(data);
+  });
+
+  static readonly update = handler(async ({ req, accountId }) => {
+    const { walletId } = req.params as Record<string, string>;
+    log.info(`Updating wallet=${walletId} for account=${accountId}`);
+
+    WalletValidator.update(accountId, req.body);
+    const data = await WalletServices.update(accountId, { ...req.body, id: walletId });
+
+    return WalletMapper.toRest(data);
+  });
+
+  static readonly updateAutomaticIncome = handler(async ({ req, accountId }) => {
+    const { walletId } = req.params as Record<string, string>;
+    log.info(`Updating automatic income for wallet=${walletId} account=${accountId}`);
+
+    WalletValidator.updateAutomaticIncome(req.body);
+    const data = await WalletServices.updateAutomaticIncome(accountId, walletId, req.body);
+
+    return WalletMapper.toRest(data);
+  });
+
+  static readonly getOne = handler(async ({ req, accountId }) => {
+    const { walletId } = req.params as Record<string, string>;
+    log.info(`Fetching wallet=${walletId} for account=${accountId}`);
+
+    const data = await WalletServices.getOneById(accountId, walletId);
+
+    return WalletMapper.toRest(data);
+  });
+
+  static readonly archiveOne = handler(async ({ req, accountId }) => {
+    const { walletId } = req.params as Record<string, string>;
+    log.info(`Archiving wallet=${walletId} for account=${accountId}`);
+
+    const data = await WalletServices.archiveOneById(accountId, walletId);
+
+    return WalletMapper.toRest(data);
+  });
+
+  static readonly getAll = handler(async ({ req, accountId }) => {
+    const { page, pageSize } = req as any;
+    const { isActive, name, walletType } = req.query as any;
+    log.info(`Fetching all wallets for account=${accountId}`);
+
+    WalletValidator.getAll(walletType);
+    const data = await WalletServices.getAll(accountId, {
+      page,
+      pageSize,
+      isActive: getValuesFromQuery.boolean("isActive", isActive),
+      name,
+      walletType,
+    });
+
+    return WalletMapper.toListResponse(data.values, { page, pageSize, elementCount: data.count });
+  });
 }

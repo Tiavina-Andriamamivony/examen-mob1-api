@@ -1,8 +1,7 @@
-import { NextFunction } from "express";
-
 import { ApiError } from "./api-error";
 
-export const NotFoundError = (message: string, next: NextFunction) => {
-  const notFoundError = new ApiError(message, 404);
-  next(notFoundError);
-};
+export class NotFoundError extends ApiError {
+  constructor(message: string) {
+    super(message, 404);
+  }
+}

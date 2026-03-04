@@ -1,43 +1,60 @@
-import { CreationWallet, UpdateWallet, WalletAutomaticIncome, WalletTypeEnum } from "@clients";
+import { CreationWallet, UpdateWallet, WalletAutomaticIncome } from "@clients";
 import z from "zod";
 
-import { ApiError } from "@/errors";
+import { BadRequestError, ForbiddenError } from "@/errors";
 
-const walletTypes = ["CASH", "MOBILE_MONEY", "BANK", "DEBT"];
+const WALLET_TYPES = ["CASH", "MOBILE_MONEY", "BANK", "DEBT"] as const;
+const AUTOMATIC_INCOME_TYPES = ["NOT_SPECIFIED", "MENSUAL"] as const;
 
 const createWalletSchema = z.object({
   name: z.string().min(1),
-  description: z.string().nullable(),
-  type: z.string().refine((value) => walletTypes.includes(value as any), 'Type should be one of Cash: "CASH","MOBILE_MONEY","BANK","DEBT"'),
+  description: z.string().nullable().optional(),
+  type: z.enum(WALLET_TYPES),
+  color: z.string().optional(),
+  iconRef: z.string().optional(),
+  amount: z.number().min(0),
 });
 
 const updateWalletSchema = z.object({
   name: z.string().min(1),
-  description: z.string().nullable(),
-  type: z.string().refine((value) => walletTypes.includes(value as any), 'Type should be one of Cash: "CASH","MOBILE_MONEY","BANK","DEBT"'),
+  description: z.string().nullable().optional(),
+  type: z.enum(WALLET_TYPES),
   isActive: z.boolean(),
+  color: z.string().optional(),
+  iconRef: z.string().optional(),
 });
 
 const updateAutomaticIncomeSchema = z.object({
-  type: z.refine((type: string) => ["NOT_SPECIFIED", "MENSUAL"].includes(type), `Type should be one of NOT_SPECIFIED, MENSUAL`),
+  type: z.enum(AUTOMATIC_INCOME_TYPES),
   amount: z.number().min(0),
-  paymentDay: z.number().min(1).max(31),
+  paymentDay: z.number().int().min(1).max(28),
 });
 
+const getAllSchema = z.object({
+  walletType: z.enum(WALLET_TYPES).optional(),
+});
+
+const parseOrThrow = (schema: z.ZodSchema, data: unknown): void => {
+  const result = schema.safeParse(data);
+  if (!result.success) throw new BadRequestError(z.prettifyError(result.error));
+};
+
 export class WalletValidator {
-  public static create(createWallet: CreationWallet) {
-    const result = createWalletSchema.safeParse(createWallet);
-    if (!result.success) throw new ApiError(z.prettifyError(result.error), 400);
+  static create(body: CreationWallet): void {
+    parseOrThrow(createWalletSchema, body);
   }
 
-  public static update(accountId: string, createWallet: UpdateWallet) {
-    if (createWallet.accountId !== accountId) throw new ApiError("Your account is not able to make change on this element", 403);
-    const result = updateWalletSchema.safeParse(createWallet);
-
-    if (!result.success) throw new ApiError(z.prettifyError(result.error), 400);
+  static update(accountId: string, body: UpdateWallet): void {
+    if (body.accountId !== accountId)
+      throw new ForbiddenError("Your account is not able to make changes on this element");
+    parseOrThrow(updateWalletSchema, body);
   }
-  public static updateAutomaticIncome(automaticIncome: WalletAutomaticIncome) {
-    const result = updateAutomaticIncomeSchema.safeParse(automaticIncome);
-    if (!result.success) throw new ApiError(z.prettifyError(result.error), 400);
+
+  static updateAutomaticIncome(body: WalletAutomaticIncome): void {
+    parseOrThrow(updateAutomaticIncomeSchema, body);
+  }
+
+  static getAll(query: { walletType?: string }): void {
+    parseOrThrow(getAllSchema, query);
   }
 }
