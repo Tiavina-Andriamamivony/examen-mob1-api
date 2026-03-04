@@ -10,10 +10,14 @@ permissions:
   contents: read
 
 jobs:
-  test:
+  unit-tests:
     name: Unit Tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
+
+    env:
+      DATABASE_URL: file:./dev.db
+      JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
 
     steps:
       - name: Checkout repository
@@ -28,8 +32,44 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run tests
+      - name: Run unit tests
         run: npm run test
 
       - name: Run test coverage
         run: npm run test:coverage
+
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    needs: unit-tests
+
+    env:
+      DATABASE_URL: file:./test.db
+      JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+
+      - name: Run database migrations
+        run: npx prisma migrate deploy
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Clean test database
+        if: always()
+        run: rm -f test.db
