@@ -16,8 +16,8 @@ jobs:
     timeout-minutes: 10
 
     env:
-      DATABASE_URL: file:./dev.db
-      JWT_SECRET: ${{ secrets.JWT_SECRET_TEST }}
+      DATABASE_URL: ${{ secrets.DATABASE_URL || 'file:./dev.db' }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET_TEST || 'fallback_value' }}
 
     steps:
       - name: Checkout repository
