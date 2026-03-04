@@ -24,19 +24,19 @@ export interface UpdateWallet {
    * @type {string}
    * @memberof UpdateWallet
    */
-  name?: string;
+  name: string;
   /**
    *
    * @type {string}
    * @memberof UpdateWallet
    */
-  description?: string;
+  description?: string | null;
   /**
    *
-   * @type {string}
+   * @type {UpdateWalletTypeEnum}
    * @memberof UpdateWallet
    */
-  type?: UpdateWalletTypeEnum;
+  type: UpdateWalletTypeEnum;
   /**
    *
    * @type {string}
@@ -51,6 +51,12 @@ export interface UpdateWallet {
   iconRef?: string;
   /**
    *
+   * @type {number}
+   * @memberof UpdateWallet
+   */
+  amount: number;
+  /**
+   *
    * @type {string}
    * @memberof UpdateWallet
    */
@@ -60,13 +66,13 @@ export interface UpdateWallet {
    * @type {string}
    * @memberof UpdateWallet
    */
-  accountId?: string;
+  accountId: string;
   /**
    *
    * @type {boolean}
    * @memberof UpdateWallet
    */
-  isActive?: boolean;
+  isActive: boolean;
 }
 
 /**
@@ -84,6 +90,11 @@ export type UpdateWalletTypeEnum = (typeof UpdateWalletTypeEnum)[keyof typeof Up
  * Check if a given object implements the UpdateWallet interface.
  */
 export function instanceOfUpdateWallet(value: object): value is UpdateWallet {
+  if (!("name" in value) || value["name"] === undefined) return false;
+  if (!("type" in value) || value["type"] === undefined) return false;
+  if (!("amount" in value) || value["amount"] === undefined) return false;
+  if (!("accountId" in value) || value["accountId"] === undefined) return false;
+  if (!("isActive" in value) || value["isActive"] === undefined) return false;
   return true;
 }
 
@@ -96,14 +107,15 @@ export function UpdateWalletFromJSONTyped(json: any, ignoreDiscriminator: boolea
     return json;
   }
   return {
-    name: json["name"] == null ? undefined : json["name"],
+    name: json["name"],
     description: json["description"] == null ? undefined : json["description"],
-    type: json["type"] == null ? undefined : json["type"],
+    type: json["type"],
     color: json["color"] == null ? undefined : json["color"],
     iconRef: json["iconRef"] == null ? undefined : json["iconRef"],
+    amount: json["amount"],
     id: json["id"] == null ? undefined : json["id"],
-    accountId: json["accountId"] == null ? undefined : json["accountId"],
-    isActive: json["isActive"] == null ? undefined : json["isActive"],
+    accountId: json["accountId"],
+    isActive: json["isActive"],
   };
 }
 
@@ -122,6 +134,7 @@ export function UpdateWalletToJSONTyped(value?: UpdateWallet | null, ignoreDiscr
     type: value["type"],
     color: value["color"],
     iconRef: value["iconRef"],
+    amount: value["amount"],
     id: value["id"],
     accountId: value["accountId"],
     isActive: value["isActive"],

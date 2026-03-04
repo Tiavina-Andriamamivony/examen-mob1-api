@@ -58,12 +58,9 @@ export interface UpdateOneTransactionRequest {
  */
 export class TransactionApi extends runtime.BaseAPI {
   /**
-   * Create new transaction for the specified account
+   * Creates request options for createOneTransaction without sending the request
    */
-  async createOneTransactionRaw(
-    requestParameters: CreateOneTransactionRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Transaction>> {
+  async createOneTransactionRequestOpts(requestParameters: CreateOneTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling createOneTransaction().');
     }
@@ -82,16 +79,24 @@ export class TransactionApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "POST",
-        headers: headerParameters,
-        query: queryParameters,
-        body: CreationTransactionToJSON(requestParameters["creationTransaction"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "POST",
+      headers: headerParameters,
+      query: queryParameters,
+      body: CreationTransactionToJSON(requestParameters["creationTransaction"]),
+    };
+  }
+
+  /**
+   * Create new transaction for the specified account
+   */
+  async createOneTransactionRaw(
+    requestParameters: CreateOneTransactionRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Transaction>> {
+    const requestOptions = await this.createOneTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => TransactionFromJSON(jsonValue));
   }
@@ -105,12 +110,9 @@ export class TransactionApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get all disponibles transaction for the specified account
+   * Creates request options for getAllTransactions without sending the request
    */
-  async getAllTransactionsRaw(
-    requestParameters: GetAllTransactionsRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Array<Transaction>>> {
+  async getAllTransactionsRequestOpts(requestParameters: GetAllTransactionsRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getAllTransactions().');
     }
@@ -158,15 +160,23 @@ export class TransactionApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/transaction`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get all disponibles transaction for the specified account
+   */
+  async getAllTransactionsRaw(
+    requestParameters: GetAllTransactionsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Array<Transaction>>> {
+    const requestOptions = await this.getAllTransactionsRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => jsonValue.map(TransactionFromJSON));
   }
@@ -180,9 +190,9 @@ export class TransactionApi extends runtime.BaseAPI {
   }
 
   /**
-   * Get get one transaction by id for the specified account
+   * Creates request options for getOneTransaction without sending the request
    */
-  async getOneTransactionRaw(requestParameters: GetOneTransactionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Transaction>> {
+  async getOneTransactionRequestOpts(requestParameters: GetOneTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getOneTransaction().');
     }
@@ -204,15 +214,20 @@ export class TransactionApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
     urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters["transactionId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "GET",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "GET",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Get get one transaction by id for the specified account
+   */
+  async getOneTransactionRaw(requestParameters: GetOneTransactionRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Transaction>> {
+    const requestOptions = await this.getOneTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => TransactionFromJSON(jsonValue));
   }
@@ -226,12 +241,9 @@ export class TransactionApi extends runtime.BaseAPI {
   }
 
   /**
-   * Delete one transaction and update wallet amount
+   * Creates request options for removeOneTransaction without sending the request
    */
-  async removeOneTransactionRaw(
-    requestParameters: RemoveOneTransactionRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Transaction>> {
+  async removeOneTransactionRequestOpts(requestParameters: RemoveOneTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling removeOneTransaction().');
     }
@@ -253,15 +265,23 @@ export class TransactionApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
     urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters["transactionId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "DELETE",
-        headers: headerParameters,
-        query: queryParameters,
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "DELETE",
+      headers: headerParameters,
+      query: queryParameters,
+    };
+  }
+
+  /**
+   * Delete one transaction and update wallet amount
+   */
+  async removeOneTransactionRaw(
+    requestParameters: RemoveOneTransactionRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Transaction>> {
+    const requestOptions = await this.removeOneTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => TransactionFromJSON(jsonValue));
   }
@@ -275,12 +295,9 @@ export class TransactionApi extends runtime.BaseAPI {
   }
 
   /**
-   * Update one transaction by id for the specified account
+   * Creates request options for updateOneTransaction without sending the request
    */
-  async updateOneTransactionRaw(
-    requestParameters: UpdateOneTransactionRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Transaction>> {
+  async updateOneTransactionRequestOpts(requestParameters: UpdateOneTransactionRequest): Promise<runtime.RequestOpts> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling updateOneTransaction().');
     }
@@ -304,16 +321,24 @@ export class TransactionApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
     urlPath = urlPath.replace(`{${"transactionId"}}`, encodeURIComponent(String(requestParameters["transactionId"])));
 
-    const response = await this.request(
-      {
-        path: urlPath,
-        method: "PUT",
-        headers: headerParameters,
-        query: queryParameters,
-        body: TransactionToJSON(requestParameters["transaction"]),
-      },
-      initOverrides,
-    );
+    return {
+      path: urlPath,
+      method: "PUT",
+      headers: headerParameters,
+      query: queryParameters,
+      body: TransactionToJSON(requestParameters["transaction"]),
+    };
+  }
+
+  /**
+   * Update one transaction by id for the specified account
+   */
+  async updateOneTransactionRaw(
+    requestParameters: UpdateOneTransactionRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Transaction>> {
+    const requestOptions = await this.updateOneTransactionRequestOpts(requestParameters);
+    const response = await this.request(requestOptions, initOverrides);
 
     return new runtime.JSONApiResponse(response, (jsonValue) => TransactionFromJSON(jsonValue));
   }

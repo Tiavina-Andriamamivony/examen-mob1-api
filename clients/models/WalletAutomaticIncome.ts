@@ -21,24 +21,24 @@ import { mapValues } from "../runtime";
 export interface WalletAutomaticIncome {
   /**
    *
-   * @type {string}
+   * @type {WalletAutomaticIncomeTypeEnum}
    * @memberof WalletAutomaticIncome
    */
-  type?: WalletAutomaticIncomeTypeEnum;
+  type: WalletAutomaticIncomeTypeEnum;
   /**
    *
    * @type {number}
    * @memberof WalletAutomaticIncome
    */
-  amount?: number;
+  amount: number;
   /**
-   * one day in a month where the new payment will be add to the current wallet
-   * only work if the type is MENSUAL
+   * Day of the month when the automatic income is added to the wallet.
+   * Only applies when type is MENSUAL.
    *
    * @type {number}
    * @memberof WalletAutomaticIncome
    */
-  paymentDay?: number;
+  paymentDay: number;
 }
 
 /**
@@ -54,6 +54,9 @@ export type WalletAutomaticIncomeTypeEnum = (typeof WalletAutomaticIncomeTypeEnu
  * Check if a given object implements the WalletAutomaticIncome interface.
  */
 export function instanceOfWalletAutomaticIncome(value: object): value is WalletAutomaticIncome {
+  if (!("type" in value) || value["type"] === undefined) return false;
+  if (!("amount" in value) || value["amount"] === undefined) return false;
+  if (!("paymentDay" in value) || value["paymentDay"] === undefined) return false;
   return true;
 }
 
@@ -66,9 +69,9 @@ export function WalletAutomaticIncomeFromJSONTyped(json: any, ignoreDiscriminato
     return json;
   }
   return {
-    type: json["type"] == null ? undefined : json["type"],
-    amount: json["amount"] == null ? undefined : json["amount"],
-    paymentDay: json["paymentDay"] == null ? undefined : json["paymentDay"],
+    type: json["type"],
+    amount: json["amount"],
+    paymentDay: json["paymentDay"],
   };
 }
 

@@ -296,7 +296,7 @@ paths:
               schema:
                 allOf:
                   - $ref: "#/components/schemas/Wallet"
-                  
+
   /account/{accountId}/wallet/{walletId}/archive:
     post:
       tags:

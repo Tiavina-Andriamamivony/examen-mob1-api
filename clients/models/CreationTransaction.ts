@@ -35,7 +35,7 @@ export interface CreationTransaction {
   labels?: Array<Label>;
   /**
    *
-   * @type {string}
+   * @type {CreationTransactionTypeEnum}
    * @memberof CreationTransaction
    */
   type?: CreationTransactionTypeEnum;

@@ -665,6 +665,7 @@
     },
     "/account/{accountId}/wallet/{walletId}/archive": {
       "post": {
+        "operationId": "archiveOneWallet",
         "parameters": [
           {
             "explode": false,
@@ -694,11 +695,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "allOf": [
-                    {
-                      "$ref": "#/components/schemas/Wallet"
-                    }
-                  ]
+                  "$ref": "#/components/schemas/Wallet"
                 }
               }
             },
@@ -2720,22 +2717,6 @@
         "type": "object",
         "example": null
       },
-      "WalletAutomaticIncome": {
-        "properties": {
-          "type": {
-            "enum": ["NOT_SPECIFIED", "MENSUAL"],
-            "type": "string"
-          },
-          "amount": {
-            "type": "number"
-          },
-          "paymentDay": {
-            "description": "one day in a month where the new payment will be add to the current wallet\nonly work if the type is MENSUAL\n",
-            "type": "number"
-          }
-        },
-        "type": "object"
-      },
       "CreationWallet": {
         "properties": {
           "name": {
@@ -2743,6 +2724,7 @@
             "type": "string"
           },
           "description": {
+            "nullable": true,
             "type": "string"
           },
           "type": {
@@ -2756,8 +2738,14 @@
           },
           "iconRef": {
             "type": "string"
+          },
+          "amount": {
+            "format": "double",
+            "minimum": 0,
+            "type": "number"
           }
         },
+        "required": ["amount", "name", "type"],
         "type": "object"
       },
       "UpdateWallet": {
@@ -2779,6 +2767,7 @@
                 "type": "boolean"
               }
             },
+            "required": ["accountId", "isActive"],
             "type": "object",
             "example": null
           }
@@ -2787,30 +2776,64 @@
         "example": null
       },
       "Wallet": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/UpdateWallet"
+        "properties": {
+          "id": {
+            "format": "uuid",
+            "type": "string"
           },
-          {
-            "properties": {
-              "amount": {
-                "format": "double",
-                "type": "number"
-              },
-              "walletAutomaticIncome": {
-                "allOf": [
-                  {
-                    "$ref": "#/components/schemas/WalletAutomaticIncome"
-                  }
-                ]
-              }
-            },
-            "type": "object",
-            "example": null
+          "accountId": {
+            "format": "uuid",
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "nullable": true,
+            "type": "string"
+          },
+          "type": {
+            "enum": ["CASH", "MOBILE_MONEY", "BANK", "DEBT"],
+            "type": "string"
+          },
+          "color": {
+            "type": "string"
+          },
+          "iconRef": {
+            "type": "string"
+          },
+          "amount": {
+            "format": "double",
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "walletAutomaticIncome": {
+            "$ref": "#/components/schemas/WalletAutomaticIncome"
           }
-        ],
-        "type": "object",
-        "example": null
+        },
+        "type": "object"
+      },
+      "WalletAutomaticIncome": {
+        "properties": {
+          "type": {
+            "enum": ["NOT_SPECIFIED", "MENSUAL"],
+            "type": "string"
+          },
+          "amount": {
+            "minimum": 0,
+            "type": "number"
+          },
+          "paymentDay": {
+            "description": "Day of the month when the automatic income is added to the wallet.\nOnly applies when type is MENSUAL.\n",
+            "maximum": 28,
+            "minimum": 1,
+            "type": "number"
+          }
+        },
+        "required": ["amount", "paymentDay", "type"],
+        "type": "object"
       },
       "CreationLabel": {
         "properties": {

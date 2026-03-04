@@ -9,6 +9,7 @@
 | `type`        | string  |
 | `color`       | string  |
 | `iconRef`     | string  |
+| `amount`      | number  |
 | `id`          | string  |
 | `accountId`   | string  |
 | `isActive`    | boolean |
@@ -25,6 +26,7 @@ const example = {
   "type": null,
   "color": #00ff00,
   "iconRef": null,
+  "amount": null,
   "id": null,
   "accountId": null,
   "isActive": null,
