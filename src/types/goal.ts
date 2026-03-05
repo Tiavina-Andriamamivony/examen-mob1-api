@@ -6,7 +6,7 @@ export type GoalFilters = {
   startingDateEnding?: string;
   endingDateBeginning?: string;
   endingDateEnding?: string;
-  sortBy?: "startingDate" | "endingDate" | "amount" | "createdAt";
+  sortBy?: "startingDate" | "endingDate" | "amount" | "createdAt" | "name";
 } & ListFilters &
   NameFilter &
   AmountFilter &

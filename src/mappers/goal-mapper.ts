@@ -6,50 +6,49 @@ import { PrismaPaginationInfo } from "@/types";
 import { DEFAULT_COLOR, calculatePagination } from "@/utilities";
 
 export class GoalMapper {
-  public static toRest(goal: PrismaGoal) {
-    const mapped: RestGoal = {
+  static toRest(goal: PrismaGoal): RestGoal {
+    return {
       id: goal.id,
       name: goal.name,
       amount: goal.amount,
       endingDate: goal.endingDate,
       startingDate: goal.startingDate,
-      walletId: goal.walletId,
+      walletId: goal.walletId ?? undefined,
       accountId: goal.accountId,
       color: goal.color || DEFAULT_COLOR,
-      iconRef: goal.iconRef,
+      iconRef: goal.iconRef ?? undefined,
     };
-    return mapped;
   }
 
-  public static update(accountId: string, goal: RestGoal) {
-    const mapped = {
+  static update(accountId: string, goal: RestGoal): PrismaGoal {
+    return {
       accountId,
-      amount: goal.amount || 0,
+      amount: goal.amount ?? 0,
       color: goal.color || DEFAULT_COLOR,
-      endingDate: new Date(goal.endingDate),
-      startingDate: new Date(goal.startingDate),
-      id: goal.id,
-      name: goal.name || "",
-      walletId: goal.walletId,
-      iconRef: goal.iconRef,
+      endingDate: new Date(goal.endingDate as unknown as string),
+      startingDate: new Date(goal.startingDate as unknown as string),
+      id: goal.id ?? v4(),
+      name: goal.name ?? "",
+      walletId: goal.walletId ?? null,
+      iconRef: goal.iconRef ?? null,
       isArchived: false,
-    };
-
-    return mapped as PrismaGoal;
+      updatedAt: new Date(),
+      // createdAt is omitted — Prisma uses @default(now()) on create, @updatedAt on update
+    } as PrismaGoal;
   }
 
-  public static create(accountId: string, goal: RestGoal) {
-    return this.update(accountId, { ...goal, id: v4() });
+  static create(accountId: string, goal: RestGoal): PrismaGoal {
+    return {
+      ...GoalMapper.update(accountId, goal),
+      id: v4(),
+      createdAt: new Date(),
+    } as PrismaGoal;
   }
 
-  public static toListResponse(goals: PrismaGoal[], prismaPaginationInfo: PrismaPaginationInfo) {
-    const mapped = goals.map(this.toRest.bind(this));
-
-    const listResponse: GetAllGoals200Response = {
+  static toListResponse(goals: PrismaGoal[], prismaPaginationInfo: PrismaPaginationInfo): GetAllGoals200Response {
+    return {
       pagination: calculatePagination(prismaPaginationInfo),
-      values: mapped,
+      values: goals.map(GoalMapper.toRest),
     };
-
-    return listResponse;
   }
 }
