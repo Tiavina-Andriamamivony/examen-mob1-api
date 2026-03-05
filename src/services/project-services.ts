@@ -2,90 +2,119 @@ import { CreationProject, CreationProjectTransaction, ProjectStatistics } from "
 import { Project as PrismaProject, ProjectTransaction as PrismaProjectTransaction } from "@prisma/client";
 
 import { getPrismaClient } from "@/configs";
-import { ApiError } from "@/errors";
+import { BadRequestError, NotFoundError } from "@/errors";
+import { ProjectMapper } from "@/mappers";
 import { ProjectFilters } from "@/types";
 import { filterIfNotNull } from "@/utilities";
+import { createLogger } from "@/utilities/logger";
+
+const log = createLogger("ProjectServices");
+const db = () => getPrismaClient();
 
 export class ProjectServices {
-  // Project CRUD
   static async create(accountId: string, project: CreationProject): Promise<PrismaProject> {
-    return await getPrismaClient().project.create({
+    log.info(`Creating project name=${project.name} for account=${accountId}`);
+
+    if (!project.name) throw new BadRequestError("Project name is required");
+    if (project.initialBudget === undefined) throw new BadRequestError("Initial budget is required");
+
+    return db().project.create({
       data: {
         name: project.name,
-        description: project.description || null,
+        description: project.description ?? null,
         initialBudget: project.initialBudget,
-        color: project.color || "#00ff00",
-        iconRef: project.iconRef || null,
+        color: project.color ?? "#00ff00",
+        iconRef: project.iconRef ?? null,
         accountId,
       },
     });
   }
 
   static async getOneById(accountId: string, projectId: string): Promise<PrismaProject> {
-    const project = await getPrismaClient().project.findFirst({
-      where: { id: projectId, accountId },
+    log.info(`Fetching project id=${projectId} for account=${accountId}`);
+
+    const project = await db().project.findFirst({
+      where: { id: projectId, accountId, isArchived: false },
     });
-    if (!project || project.isArchived) throw new ApiError(`Project with id=${projectId} not found`, 404);
+
+    if (!project) throw new NotFoundError(`Project with id=${projectId} not found`);
+
     return project;
   }
 
   static async update(accountId: string, projectId: string, project: Partial<CreationProject>): Promise<PrismaProject> {
-    const existingProject = await this.getOneById(accountId, projectId);
+    log.info(`Updating project id=${projectId} for account=${accountId}`);
 
-    return await getPrismaClient().project.update({
+    const existing = await this.getOneById(accountId, projectId);
+
+    return db().project.update({
       where: { id: projectId, accountId },
       data: {
-        name: project.name || existingProject.name,
-        description: project.description !== undefined ? project.description : existingProject.description,
-        initialBudget: project.initialBudget || existingProject.initialBudget,
-        color: project.color || existingProject.color,
-        iconRef: project.iconRef !== undefined ? project.iconRef : existingProject.iconRef,
+        name: project.name ?? existing.name,
+        description: project.description !== undefined ? project.description : existing.description,
+        initialBudget: project.initialBudget ?? existing.initialBudget,
+        color: project.color ?? existing.color,
+        iconRef: project.iconRef !== undefined ? project.iconRef : existing.iconRef,
       },
     });
   }
 
   static async archiveOneById(accountId: string, projectId: string): Promise<PrismaProject> {
-    const project = await this.getOneById(accountId, projectId);
-    return await getPrismaClient().project.update({
+    log.info(`Archiving project id=${projectId} for account=${accountId}`);
+
+    await this.getOneById(accountId, projectId);
+
+    return db().project.update({
       where: { id: projectId, accountId },
       data: { isArchived: true },
     });
   }
 
   static async deleteOneById(accountId: string, projectId: string): Promise<PrismaProject> {
-    const project = await this.getOneById(accountId, projectId);
-    return await getPrismaClient().project.delete({
-      where: { id: projectId, accountId },
-    });
+    log.info(`Deleting project id=${projectId} for account=${accountId}`);
+
+    await this.getOneById(accountId, projectId);
+
+    return db().project.delete({ where: { id: projectId, accountId } });
   }
 
   static async getAll(accountId: string, query: ProjectFilters) {
     const { page, pageSize, name, isArchived = false, sort = "desc", sortBy = "createdAt" } = query;
+    log.info(`Fetching all projects for account=${accountId} page=${page}`);
 
-    return await getPrismaClient().project.findMany({
-      take: pageSize,
-      skip: pageSize * (page - 1),
-      where: {
-        accountId,
-        isArchived,
-        ...filterIfNotNull("name", name, () => ({ contains: name, mode: "insensitive" })),
-      },
-      orderBy: {
-        [sortBy]: sort,
-      },
-    });
+    const where = {
+      accountId,
+      isArchived,
+      ...(name ? { name: { contains: name } } : {}),
+    };
+
+    const [values, count] = await db().$transaction([
+      db().project.findMany({
+        take: pageSize,
+        skip: pageSize * (page - 1),
+        where,
+        orderBy: { [sortBy]: sort },
+      }),
+      db().project.count({ where }),
+    ]);
+
+    return { values, count };
   }
 
-  // ProjectTransaction CRUD
   static async createTransaction(accountId: string, projectId: string, transaction: CreationProjectTransaction): Promise<PrismaProjectTransaction> {
-    const project = await this.getOneById(accountId, projectId);
+    log.info(`Creating transaction for project=${projectId} account=${accountId}`);
 
-    return await getPrismaClient().projectTransaction.create({
+    await this.getOneById(accountId, projectId);
+
+    if (!transaction.name) throw new BadRequestError("Transaction name is required");
+    if (transaction.estimatedCost === undefined) throw new BadRequestError("Estimated cost is required");
+
+    return db().projectTransaction.create({
       data: {
         name: transaction.name,
-        description: transaction.description || null,
+        description: transaction.description ?? null,
         estimatedCost: transaction.estimatedCost,
-        realCost: transaction.realCost || 0,
+        realCost: transaction.realCost ?? 0,
         projectId,
         accountId,
       },
@@ -93,54 +122,62 @@ export class ProjectServices {
   }
 
   static async getTransactionById(accountId: string, projectId: string, transactionId: string): Promise<PrismaProjectTransaction> {
-    const transaction = await getPrismaClient().projectTransaction.findFirst({
+    log.info(`Fetching transaction id=${transactionId} for project=${projectId}`);
+
+    const transaction = await db().projectTransaction.findFirst({
       where: { id: transactionId, projectId, accountId },
     });
-    if (!transaction) throw new ApiError(`Transaction with id=${transactionId} not found`, 404);
+
+    if (!transaction) throw new NotFoundError(`Transaction with id=${transactionId} not found`);
     return transaction;
   }
 
   static async updateTransaction(accountId: string, projectId: string, transactionId: string, transaction: Partial<CreationProjectTransaction>): Promise<PrismaProjectTransaction> {
-    const existingTransaction = await this.getTransactionById(accountId, projectId, transactionId);
+    log.info(`Updating transaction id=${transactionId} for project=${projectId}`);
 
-    return await getPrismaClient().projectTransaction.update({
+    const existing = await this.getTransactionById(accountId, projectId, transactionId);
+
+    return db().projectTransaction.update({
       where: { id: transactionId },
       data: {
-        name: transaction.name || existingTransaction.name,
-        description: transaction.description !== undefined ? transaction.description : existingTransaction.description,
-        estimatedCost: transaction.estimatedCost || existingTransaction.estimatedCost,
-        realCost: transaction.realCost !== undefined ? transaction.realCost : existingTransaction.realCost,
+        name: transaction.name ?? existing.name,
+        description: transaction.description !== undefined ? transaction.description : existing.description,
+        estimatedCost: transaction.estimatedCost ?? existing.estimatedCost,
+        realCost: transaction.realCost !== undefined ? transaction.realCost : existing.realCost,
       },
     });
   }
 
   static async deleteTransaction(accountId: string, projectId: string, transactionId: string): Promise<PrismaProjectTransaction> {
-    const transaction = await this.getTransactionById(accountId, projectId, transactionId);
-    return await getPrismaClient().projectTransaction.delete({
-      where: { id: transactionId },
-    });
+    log.info(`Deleting transaction id=${transactionId} for project=${projectId}`);
+
+    await this.getTransactionById(accountId, projectId, transactionId);
+
+    return db().projectTransaction.delete({ where: { id: transactionId } });
   }
 
-  static async getTransactionsByProject(accountId: string, projectId: string) {
-    const project = await this.getOneById(accountId, projectId);
+  static async getTransactionsByProject(accountId: string, projectId: string): Promise<PrismaProjectTransaction[]> {
+    log.info(`Fetching all transactions for project=${projectId}`);
 
-    return await getPrismaClient().projectTransaction.findMany({
-      where: {
-        projectId,
-        accountId,
-      },
+    await this.getOneById(accountId, projectId);
+
+    return db().projectTransaction.findMany({
+      where: { projectId, accountId },
       orderBy: { createdAt: "desc" },
     });
   }
 
-  // Statistics
   static async getStatistics(accountId: string, projectId: string): Promise<ProjectStatistics> {
-    const project = await this.getOneById(accountId, projectId);
+    log.info(`Computing statistics for project=${projectId}`);
+
+    const prismaProject = await this.getOneById(accountId, projectId);
     const transactions = await this.getTransactionsByProject(accountId, projectId);
 
     const totalEstimatedCost = transactions.reduce((sum, t) => sum + t.estimatedCost, 0);
-    const totalRealCost = transactions.reduce((sum, t) => sum + (t.realCost || 0), 0);
-    const remainingBudget = project.initialBudget - totalRealCost;
+    const totalRealCost = transactions.reduce((sum, t) => sum + (t.realCost ?? 0), 0);
+    const remainingBudget = prismaProject.initialBudget - totalRealCost;
+
+    const project = ProjectMapper.toRest(prismaProject);
 
     return {
       project,

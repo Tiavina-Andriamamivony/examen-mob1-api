@@ -1,198 +1,169 @@
-import { RequestHandler } from "express";
-
-import { ApiError } from "@/errors";
 import { ProjectMapper } from "@/mappers";
 import { ProjectServices } from "@/services";
+import { handler } from "@/utilities/handler";
+import { createLogger } from "@/utilities/logger";
 import { PdfGeneratorService } from "@/utilities/pdf-generator";
 import { ProjectValidator } from "@/validator";
 
+const log = createLogger("ProjectController");
+
 export class ProjectController {
-  // Project Management
-  static readonly create: RequestHandler = async (req, res, next) => {
-    try {
-      const accountId = (req as any).account.id;
-      ProjectValidator.create(req.body);
-      const data = await ProjectServices.create(accountId, req.body);
-      res.json(ProjectMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+  static readonly create = handler(async ({ req, accountId }) => {
+    log.info(`Creating project for account=${accountId}`);
 
-  static readonly update: RequestHandler = async (req, res, next) => {
-    try {
-      const accountId = (req as any).account.id;
-      const { projectId } = req.params;
-      ProjectValidator.create(req.body);
-      const data = await ProjectServices.update(accountId, projectId as string, req.body);
-      res.json(ProjectMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    ProjectValidator.create(req.body);
+    const data = await ProjectServices.create(accountId, req.body);
 
-  static readonly getOne: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await ProjectServices.getOneById(accountId, projectId as string);
-      res.json(ProjectMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    return ProjectMapper.toRest(data);
+  });
 
-  static readonly getAll: RequestHandler = async (req, res, next) => {
-    try {
-      const accountId = (req as any).account.id;
-      const { page = 1, pageSize = 10 } = req.query;
-      const data = await ProjectServices.getAll(accountId, {
-        page: parseInt(page as string),
-        pageSize: parseInt(pageSize as string),
-        name: req.query.name as string,
-        isArchived: req.query.isArchived ? req.query.isArchived === "true" : false,
-      });
-      res.json(data.map((p) => ProjectMapper.toRest(p)));
-    } catch (err) {
-      next(err);
-    }
-  };
+  static readonly update = handler(async ({ req, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Updating project=${projectId} for account=${accountId}`);
 
-  static readonly archiveOne: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await ProjectServices.archiveOneById(accountId, projectId as string);
-      res.json(ProjectMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    ProjectValidator.create(req.body);
+    const data = await ProjectServices.update(accountId, projectId, req.body);
 
-  static readonly delete: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await ProjectServices.deleteOneById(accountId, projectId as string);
-      res.json(ProjectMapper.toRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    return ProjectMapper.toRest(data);
+  });
 
-  // Project Transaction Management
-  static readonly createTransaction: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      ProjectValidator.createTransaction(req.body);
-      const data = await ProjectServices.createTransaction(accountId, projectId as string, req.body);
-      res.json(ProjectMapper.transactionToRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+  static readonly getOne = handler(async ({ req, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Fetching project=${projectId} for account=${accountId}`);
 
-  static readonly updateTransaction: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId, transactionId } = req.params;
-      const accountId = (req as any).account.id;
-      ProjectValidator.updateTransaction(req.body);
-      const data = await ProjectServices.updateTransaction(accountId, projectId as string, transactionId as string, req.body);
-      res.json(ProjectMapper.transactionToRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    const data = await ProjectServices.getOneById(accountId, projectId);
 
-  static readonly getTransaction: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId, transactionId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await ProjectServices.getTransactionById(accountId, projectId as string, transactionId as string);
-      res.json(ProjectMapper.transactionToRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    return ProjectMapper.toRest(data);
+  });
 
-  static readonly getTransactions: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await ProjectServices.getTransactionsByProject(accountId, projectId as string);
-      res.json(data.map((t) => ProjectMapper.transactionToRest(t)));
-    } catch (err) {
-      next(err);
-    }
-  };
+  static readonly getAll = handler(async ({ req, accountId }) => {
+    const { page = "1", pageSize = "10" } = req.query as Record<string, string>;
+    log.info(`Fetching all projects for account=${accountId}`);
 
-  static readonly deleteTransaction: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId, transactionId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await ProjectServices.deleteTransaction(accountId, projectId as string, transactionId as string);
-      res.json(ProjectMapper.transactionToRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    const data = await ProjectServices.getAll(accountId, {
+      page: parseInt(page),
+      pageSize: parseInt(pageSize),
+      name: req.query.name as string | undefined,
+      isArchived: req.query.isArchived ? req.query.isArchived === "true" : false,
+    });
 
-  // Statistics & Reports
-  static readonly getStatistics: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await ProjectServices.getStatistics(accountId, projectId as string);
-      res.json(ProjectMapper.statisticsToRest(data));
-    } catch (err) {
-      next(err);
-    }
-  };
+    return data.values.map(ProjectMapper.toRest.bind(ProjectMapper));
+  });
 
-  static readonly generateStatisticsPDF: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const statistics = await ProjectServices.getStatistics(accountId, projectId as string);
-      const pdfStream = PdfGeneratorService.generateProjectStatisticsPDF(ProjectMapper.statisticsToRest(statistics));
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="statistics-${projectId}.pdf"`);
-      pdfStream.pipe(res);
-    } catch (err) {
-      next(err);
-    }
-  };
+  static readonly archiveOne = handler(async ({ req, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Archiving project=${projectId} for account=${accountId}`);
 
-  static readonly generateInvoicePDF: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const statistics = await ProjectServices.getStatistics(accountId, projectId as string);
-      const transactions = await ProjectServices.getTransactionsByProject(accountId, projectId as string);
-      const pdfStream = PdfGeneratorService.generateProjectInvoicePDF(
-        ProjectMapper.statisticsToRest(statistics),
-        transactions.map((t) => ProjectMapper.transactionToRest(t)),
-      );
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="invoice-${projectId}.pdf"`);
-      pdfStream.pipe(res);
-    } catch (err) {
-      next(err);
-    }
-  };
+    const data = await ProjectServices.archiveOneById(accountId, projectId);
 
-  static readonly generateSummaryPDF: RequestHandler = async (req, res, next) => {
-    try {
-      const { projectId } = req.params;
-      const accountId = (req as any).account.id;
-      const statistics = await ProjectServices.getStatistics(accountId, projectId as string);
-      const pdfStream = PdfGeneratorService.generateProjectSummaryPDF(ProjectMapper.statisticsToRest(statistics));
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="summary-${projectId}.pdf"`);
-      pdfStream.pipe(res);
-    } catch (err) {
-      next(err);
-    }
-  };
+    return ProjectMapper.toRest(data);
+  });
+
+  static readonly delete = handler(async ({ req, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Deleting project=${projectId} for account=${accountId}`);
+
+    const data = await ProjectServices.deleteOneById(accountId, projectId);
+
+    return ProjectMapper.toRest(data);
+  });
+
+  static readonly createTransaction = handler(async ({ req, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Creating transaction for project=${projectId} account=${accountId}`);
+
+    ProjectValidator.createTransaction(req.body);
+    const data = await ProjectServices.createTransaction(accountId, projectId, req.body);
+
+    return ProjectMapper.transactionToRest(data);
+  });
+
+  static readonly updateTransaction = handler(async ({ req, accountId }) => {
+    const { projectId, transactionId } = req.params as Record<string, string>;
+    log.info(`Updating transaction=${transactionId} for project=${projectId}`);
+
+    ProjectValidator.updateTransaction(req.body);
+    const data = await ProjectServices.updateTransaction(accountId, projectId, transactionId, req.body);
+
+    return ProjectMapper.transactionToRest(data);
+  });
+
+  static readonly getTransaction = handler(async ({ req, accountId }) => {
+    const { projectId, transactionId } = req.params as Record<string, string>;
+    log.info(`Fetching transaction=${transactionId} for project=${projectId}`);
+
+    const data = await ProjectServices.getTransactionById(accountId, projectId, transactionId);
+
+    return ProjectMapper.transactionToRest(data);
+  });
+
+  static readonly getTransactions = handler(async ({ req, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Fetching all transactions for project=${projectId}`);
+
+    const data = await ProjectServices.getTransactionsByProject(accountId, projectId);
+
+    return data.map(ProjectMapper.transactionToRest.bind(ProjectMapper));
+  });
+
+  static readonly deleteTransaction = handler(async ({ req, accountId }) => {
+    const { projectId, transactionId } = req.params as Record<string, string>;
+    log.info(`Deleting transaction=${transactionId} for project=${projectId}`);
+
+    const data = await ProjectServices.deleteTransaction(accountId, projectId, transactionId);
+
+    return ProjectMapper.transactionToRest(data);
+  });
+
+  static readonly getStatistics = handler(async ({ req, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Fetching statistics for project=${projectId}`);
+
+    const data = await ProjectServices.getStatistics(accountId, projectId);
+
+    return ProjectMapper.statisticsToRest(data);
+  });
+
+  static readonly generateStatisticsPDF = handler(async ({ req, res, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Generating statistics PDF for project=${projectId}`);
+
+    const statistics = await ProjectServices.getStatistics(accountId, projectId);
+    const pdfStream = PdfGeneratorService.generateProjectStatisticsPDF(ProjectMapper.statisticsToRest(statistics));
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="statistics-${projectId}.pdf"`);
+    pdfStream.pipe(res);
+
+    return null; // handler won't call res.json — we piped manually
+  });
+
+  static readonly generateInvoicePDF = handler(async ({ req, res, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Generating invoice PDF for project=${projectId}`);
+
+    const statistics = await ProjectServices.getStatistics(accountId, projectId);
+    const transactions = await ProjectServices.getTransactionsByProject(accountId, projectId);
+    const pdfStream = PdfGeneratorService.generateProjectInvoicePDF(
+      ProjectMapper.statisticsToRest(statistics),
+      transactions.map(ProjectMapper.transactionToRest.bind(ProjectMapper)),
+    );
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="invoice-${projectId}.pdf"`);
+    pdfStream.pipe(res);
+
+    return null;
+  });
+
+  static readonly generateSummaryPDF = handler(async ({ req, res, accountId }) => {
+    const { projectId } = req.params as Record<string, string>;
+    log.info(`Generating summary PDF for project=${projectId}`);
+
+    const statistics = await ProjectServices.getStatistics(accountId, projectId);
+    const pdfStream = PdfGeneratorService.generateProjectSummaryPDF(ProjectMapper.statisticsToRest(statistics));
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="summary-${projectId}.pdf"`);
+    pdfStream.pipe(res);
+
+    return null;
+  });
 }

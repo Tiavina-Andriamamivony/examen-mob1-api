@@ -14,7 +14,9 @@ export const createTestAccount = async (prisma: PrismaClient) => {
 
 export const cleanDatabase = async (prisma: PrismaClient) => {
   await prisma.transaction.deleteMany();
+  await prisma.projectTransaction.deleteMany();
   await prisma.label.deleteMany();
   await prisma.wallet.deleteMany();
+  await prisma.project.deleteMany();
   await prisma.account.deleteMany();
 };
