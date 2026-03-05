@@ -2,65 +2,119 @@ import { Goal as RestGoal } from "@clients";
 import { Goal as GoalPrisma } from "@prisma/client";
 
 import { getPrismaClient } from "@/configs";
-import { ApiError } from "@/errors";
+import { BadRequestError, NotFoundError } from "@/errors";
 import { GoalMapper } from "@/mappers";
 import { GoalFilters } from "@/types";
 import { filterIfNotNull, filterIfNotNullDate, filterIfNotNullNumber } from "@/utilities";
+import { createLogger } from "@/utilities/logger";
+
+const log = createLogger("GoalServices");
+const db = () => getPrismaClient();
 
 export class GoalServices {
   static async create(accountId: string, walletId: string, goal: GoalPrisma) {
-    const getGoalByName = await getPrismaClient().goal.findFirst({ where: { name: goal.name, accountId, isArchived: false, walletId } });
-    if (getGoalByName) throw new ApiError(`Goal with name=${goal.name} already exist`, 400);
-    return await getPrismaClient().goal.create({ data: goal });
+    log.info(`Creating goal name=${goal.name} for account=${accountId} wallet=${walletId}`);
+
+    const existing = await db().goal.findFirst({
+      where: { name: goal.name, accountId, isArchived: false, walletId },
+    });
+
+    if (existing) throw new BadRequestError(`Goal with name=${goal.name} already exists`);
+
+    return db().goal.create({ data: goal });
   }
+
   static async update(accountId: string, walletId: string, goal: RestGoal) {
-    const getGoalById = await getPrismaClient().goal.findFirst({ where: { id: goal.id, accountId, walletId, isArchived: false } });
-    if (!getGoalById || getGoalById.isArchived) throw new ApiError(`Goal with id=${goal.id} not found`, 404);
+    log.info(`Updating goal id=${goal.id} for account=${accountId}`);
 
-    const getGoalByName = await getPrismaClient().goal.findFirst({ where: { name: goal.name, accountId, walletId, id: { not: goal.id }, isArchived: false } });
-    if (getGoalByName) throw new ApiError(`Goal with name=${goal.name} already exist`, 400);
+    const existing = await db().goal.findFirst({
+      where: { id: goal.id, accountId, walletId, isArchived: false },
+    });
 
-    return await getPrismaClient().goal.update({ data: GoalMapper.update(accountId, goal), where: { id: goal.id, accountId, walletId } });
+    if (!existing) throw new NotFoundError(`Goal with id=${goal.id} not found`);
+
+    const nameConflict = await db().goal.findFirst({
+      where: { name: goal.name, accountId, walletId, id: { not: goal.id }, isArchived: false },
+    });
+
+    if (nameConflict) throw new BadRequestError(`Goal with name=${goal.name} already exists`);
+
+    return db().goal.update({
+      data: GoalMapper.update(accountId, goal),
+      where: { id: goal.id, accountId, walletId },
+    });
   }
 
   static async getOneById(accountId: string, id: string) {
-    const getGoalById = await getPrismaClient().goal.findFirst({ where: { id, accountId } });
-    if (!getGoalById || getGoalById.isArchived) throw new ApiError(`Goal with id=${id} not found`, 404);
-    return getGoalById;
+    log.info(`Fetching goal id=${id} for account=${accountId}`);
+
+    const goal = await db().goal.findFirst({ where: { id, accountId, isArchived: false } });
+
+    if (!goal) throw new NotFoundError(`Goal with id=${id} not found`);
+
+    return goal;
   }
+
   static async archiveOneById(accountId: string, id: string) {
-    const getGoalById = await getPrismaClient().goal.findFirst({ where: { id, accountId } });
-    if (!getGoalById) throw new ApiError(`Goal with id=${id} not found`, 404);
-    getGoalById.isArchived = true;
-    return await getPrismaClient().goal.update({ data: getGoalById, where: { id, accountId } });
+    log.info(`Archiving goal id=${id} for account=${accountId}`);
+
+    const goal = await db().goal.findFirst({ where: { id, accountId, isArchived: false } });
+
+    if (!goal) throw new NotFoundError(`Goal with id=${id} not found`);
+
+    return db().goal.update({
+      data: { isArchived: true },
+      where: { id, accountId },
+    });
   }
+
   static async getAll(accountId: string, query: GoalFilters) {
-    const { page, pageSize, name = "", walletId, startingDateBeginning, endingDateBeginning, endingDateEnding, startingDateEnding, sort, sortBy, maxAmount, minAmount } = query;
+    const {
+      page,
+      pageSize,
+      name,
+      walletId,
+      startingDateBeginning,
+      startingDateEnding,
+      endingDateBeginning,
+      endingDateEnding,
+      sort = "desc",
+      sortBy = "createdAt",
+      maxAmount,
+      minAmount,
+    } = query;
+
+    log.info(`Fetching all goals for account=${accountId} page=${page}`);
 
     const where = {
       accountId,
-      ...filterIfNotNull("walletId", walletId),
-      name: { contains: name },
-      endingDate: { ...filterIfNotNullDate("gte", startingDateBeginning), ...filterIfNotNullDate("lte", startingDateEnding) },
-      startingDate: { ...filterIfNotNullDate("gte", endingDateBeginning), ...filterIfNotNullDate("lte", endingDateEnding) },
-      amount: { ...filterIfNotNullNumber("gte", minAmount), ...filterIfNotNullNumber("lte", maxAmount) },
       isArchived: false,
-    };
-
-    const values = await getPrismaClient().goal.findMany({
-      take: pageSize,
-      skip: pageSize * (page - 1),
-      where,
-      orderBy: {
-        [sortBy]: sort,
+      ...filterIfNotNull("walletId", walletId),
+      ...(name ? { name: { contains: name } } : {}),
+      startingDate: {
+        ...filterIfNotNullDate("gte", startingDateBeginning),
+        ...filterIfNotNullDate("lte", startingDateEnding),
       },
-    });
-
-    const count = await getPrismaClient().goal.count({ where });
-
-    return {
-      values,
-      count,
+      endingDate: {
+        ...filterIfNotNullDate("gte", endingDateBeginning),
+        ...filterIfNotNullDate("lte", endingDateEnding),
+      },
+      amount: {
+        ...filterIfNotNullNumber("gte", minAmount),
+        ...filterIfNotNullNumber("lte", maxAmount),
+      },
     };
+
+    const [values, count] = await db().$transaction([
+      db().goal.findMany({
+        take: pageSize,
+        skip: pageSize * (page - 1),
+        where,
+        orderBy: { [sortBy]: sort },
+      }),
+      db().goal.count({ where }),
+    ]);
+
+    return { values, count };
   }
 }

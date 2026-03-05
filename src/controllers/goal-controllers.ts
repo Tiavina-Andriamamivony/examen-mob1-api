@@ -1,66 +1,58 @@
-import { RequestHandler } from "express";
-import { v4 } from "uuid";
-
 import { GoalMapper } from "@/mappers";
 import { GoalServices } from "@/services";
+import { handler } from "@/utilities/handler";
+import { createLogger } from "@/utilities/logger";
 import { GoalValidator } from "@/validator";
 
+const log = createLogger("GoalController");
+
 export class GoalController {
-  static readonly create: RequestHandler = async (req, res, _next) => {
-    try {
-      const { walletId } = req.params as Record<string, string>;
-      const accountId = (req as any).account.id;
+  static readonly create = handler(async ({ req, accountId }) => {
+    const { walletId } = req.params as Record<string, string>;
+    log.info(`Creating goal for wallet=${walletId} account=${accountId}`);
 
-      await GoalValidator.create(accountId, walletId, req.body);
-      const data = await GoalServices.create(accountId, walletId, GoalMapper.create(accountId, { ...req.body }));
-      res.json(GoalMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly update: RequestHandler = async (req, res, _next) => {
-    try {
-      const goal = req.body;
-      const accountId = (req as any).account.id;
-      const { goalId, walletId } = req.params as Record<string, string>;
+    await GoalValidator.create(accountId, walletId, req.body);
+    const mapped = GoalMapper.create(accountId, req.body);
+    const data = await GoalServices.create(accountId, walletId, mapped);
 
-      GoalValidator.update(accountId, goal);
+    return GoalMapper.toRest(data);
+  });
 
-      const data = await GoalServices.update(accountId, walletId, { ...goal, id: goalId });
-      res.json(GoalMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly getOne: RequestHandler = async (req, res, _next) => {
-    try {
-      const { goalId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await GoalServices.getOneById(accountId, goalId as string);
-      res.json(GoalMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly archiveOne: RequestHandler = async (req, res, _next) => {
-    try {
-      const { goalId } = req.params;
-      const accountId = (req as any).account.id;
-      const data = await GoalServices.archiveOneById(accountId, goalId as string);
-      res.json(GoalMapper.toRest(data));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
-  static readonly getAll: RequestHandler = async (req, res, _next) => {
-    try {
-      const { page, pageSize } = req as any;
-      const accountId = (req as any).account.id;
-      GoalValidator.filters(req.query as any);
-      const data = await GoalServices.getAll(accountId, { ...req.query, page, pageSize });
-      res.json(GoalMapper.toListResponse(data.values, { page, pageSize, elementCount: data.count }));
-    } catch (error) {
-      res.json({ code: error.status, message: error.message });
-    }
-  };
+  static readonly update = handler(async ({ req, accountId }) => {
+    const { goalId, walletId } = req.params as Record<string, string>;
+    log.info(`Updating goal=${goalId} for account=${accountId}`);
+
+    GoalValidator.update(accountId, req.body);
+    const data = await GoalServices.update(accountId, walletId, { ...req.body, id: goalId });
+
+    return GoalMapper.toRest(data);
+  });
+
+  static readonly getOne = handler(async ({ req, accountId }) => {
+    const { goalId } = req.params as Record<string, string>;
+    log.info(`Fetching goal=${goalId} for account=${accountId}`);
+
+    const data = await GoalServices.getOneById(accountId, goalId);
+
+    return GoalMapper.toRest(data);
+  });
+
+  static readonly archiveOne = handler(async ({ req, accountId }) => {
+    const { goalId } = req.params as Record<string, string>;
+    log.info(`Archiving goal=${goalId} for account=${accountId}`);
+
+    const data = await GoalServices.archiveOneById(accountId, goalId);
+
+    return GoalMapper.toRest(data);
+  });
+
+  static readonly getAll = handler(async ({ req, accountId }) => {
+    const { page, pageSize } = req as any;
+    log.info(`Fetching all goals for account=${accountId}`);
+
+    GoalValidator.filters(req.query as any);
+    const data = await GoalServices.getAll(accountId, { ...req.query, page, pageSize });
+
+    return GoalMapper.toListResponse(data.values, { page, pageSize, elementCount: data.count });
+  });
 }
