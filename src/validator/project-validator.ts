@@ -1,7 +1,7 @@
 import { CreationProject, CreationProjectTransaction, ProjectTransaction } from "@clients";
 import z from "zod";
 
-import { ApiError } from "@/errors";
+import { BadRequestError } from "@/errors";
 
 const createProjectSchema = z.object({
   name: z.string().min(1, "Project name is required"),
@@ -25,25 +25,21 @@ const updateProjectTransactionSchema = z.object({
   realCost: z.number().min(0, "Real cost must be positive or zero").optional(),
 });
 
+const parseOrThrow = (schema: z.ZodSchema, data: unknown): void => {
+  const result = schema.safeParse(data);
+  if (!result.success) throw new BadRequestError(z.prettifyError(result.error));
+};
+
 export class ProjectValidator {
-  public static create(createProject: CreationProject) {
-    const result = createProjectSchema.safeParse(createProject);
-    if (!result.success) throw new ApiError(z.prettifyError(result.error), 400);
+  static create(body: CreationProject): void {
+    parseOrThrow(createProjectSchema, body);
   }
 
-  public static createTransaction(transaction: CreationProjectTransaction) {
-    const result = createProjectTransactionSchema.safeParse(transaction);
-    if (!result.success) throw new ApiError(z.prettifyError(result.error), 400);
+  static createTransaction(body: CreationProjectTransaction): void {
+    parseOrThrow(createProjectTransactionSchema, body);
   }
 
-  public static updateTransaction(transaction: Partial<ProjectTransaction>) {
-    const result = updateProjectTransactionSchema.safeParse(transaction);
-    if (!result.success) throw new ApiError(z.prettifyError(result.error), 400);
-  }
-
-  public static validateProjectExists(accountId: string, project: any) {
-    if (project.accountId !== accountId) {
-      throw new ApiError("Your account is not able to access this project", 403);
-    }
+  static updateTransaction(body: Partial<ProjectTransaction>): void {
+    parseOrThrow(updateProjectTransactionSchema, body);
   }
 }
