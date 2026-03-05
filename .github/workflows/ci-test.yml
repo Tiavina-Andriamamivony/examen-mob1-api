@@ -61,6 +61,9 @@ jobs:
       - name: Install dependencies
         run: npm install
 
+      - name: Install poppler-utils
+        run: sudo apt-get install -y poppler-utils
+
       - name: Generate Prisma client
         run: npx prisma generate
 
