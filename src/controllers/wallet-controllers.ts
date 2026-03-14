@@ -60,7 +60,7 @@ export class WalletController {
     const { isActive, name, walletType } = req.query as any;
     log.info(`Fetching all wallets for account=${accountId}`);
 
-    WalletValidator.getAll(walletType);
+    WalletValidator.getAll({ walletType });
     const data = await WalletServices.getAll(accountId, {
       page,
       pageSize,
