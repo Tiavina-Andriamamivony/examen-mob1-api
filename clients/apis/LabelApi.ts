@@ -48,9 +48,9 @@ export interface UpdateOneLabelRequest {
  */
 export class LabelApi extends runtime.BaseAPI {
   /**
-   * Creates request options for archiveOneLabel without sending the request
+   * Archive one label by id
    */
-  async archiveOneLabelRequestOpts(requestParameters: ArchiveOneLabelRequest): Promise<runtime.RequestOpts> {
+  async archiveOneLabelRaw(requestParameters: ArchiveOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling archiveOneLabel().');
     }
@@ -67,20 +67,15 @@ export class LabelApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"labelId"}}`, encodeURIComponent(String(requestParameters["labelId"])));
 
-    return {
-      path: urlPath,
-      method: "POST",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Archive one label by id
-   */
-  async archiveOneLabelRaw(requestParameters: ArchiveOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
-    const requestOptions = await this.archiveOneLabelRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => LabelFromJSON(jsonValue));
   }
@@ -94,9 +89,9 @@ export class LabelApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for createOneLabel without sending the request
+   * Create new label for the specified account
    */
-  async createOneLabelRequestOpts(requestParameters: CreateOneLabelRequest): Promise<runtime.RequestOpts> {
+  async createOneLabelRaw(requestParameters: CreateOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling createOneLabel().');
     }
@@ -110,21 +105,16 @@ export class LabelApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/label`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    return {
-      path: urlPath,
-      method: "POST",
-      headers: headerParameters,
-      query: queryParameters,
-      body: CreationLabelToJSON(requestParameters["creationLabel"]),
-    };
-  }
-
-  /**
-   * Create new label for the specified account
-   */
-  async createOneLabelRaw(requestParameters: CreateOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
-    const requestOptions = await this.createOneLabelRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreationLabelToJSON(requestParameters["creationLabel"]),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => LabelFromJSON(jsonValue));
   }
@@ -138,9 +128,9 @@ export class LabelApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getAllLabels without sending the request
+   * Get all disponibles lables for the specified account
    */
-  async getAllLabelsRequestOpts(requestParameters: GetAllLabelsRequest): Promise<runtime.RequestOpts> {
+  async getAllLabelsRaw(requestParameters: GetAllLabelsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAllLabels200Response>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getAllLabels().');
     }
@@ -164,20 +154,15 @@ export class LabelApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/label`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    return {
-      path: urlPath,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Get all disponibles lables for the specified account
-   */
-  async getAllLabelsRaw(requestParameters: GetAllLabelsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAllLabels200Response>> {
-    const requestOptions = await this.getAllLabelsRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => GetAllLabels200ResponseFromJSON(jsonValue));
   }
@@ -191,9 +176,9 @@ export class LabelApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getOneLabel without sending the request
+   * Get get one label by id for the specified account
    */
-  async getOneLabelRequestOpts(requestParameters: GetOneLabelRequest): Promise<runtime.RequestOpts> {
+  async getOneLabelRaw(requestParameters: GetOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getOneLabel().');
     }
@@ -210,20 +195,15 @@ export class LabelApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"labelId"}}`, encodeURIComponent(String(requestParameters["labelId"])));
 
-    return {
-      path: urlPath,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Get get one label by id for the specified account
-   */
-  async getOneLabelRaw(requestParameters: GetOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
-    const requestOptions = await this.getOneLabelRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => LabelFromJSON(jsonValue));
   }
@@ -237,9 +217,9 @@ export class LabelApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for updateOneLabel without sending the request
+   * Update one label by id for the specified account
    */
-  async updateOneLabelRequestOpts(requestParameters: UpdateOneLabelRequest): Promise<runtime.RequestOpts> {
+  async updateOneLabelRaw(requestParameters: UpdateOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling updateOneLabel().');
     }
@@ -258,21 +238,16 @@ export class LabelApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"labelId"}}`, encodeURIComponent(String(requestParameters["labelId"])));
 
-    return {
-      path: urlPath,
-      method: "PUT",
-      headers: headerParameters,
-      query: queryParameters,
-      body: LabelToJSON(requestParameters["label"]),
-    };
-  }
-
-  /**
-   * Update one label by id for the specified account
-   */
-  async updateOneLabelRaw(requestParameters: UpdateOneLabelRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Label>> {
-    const requestOptions = await this.updateOneLabelRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "PUT",
+        headers: headerParameters,
+        query: queryParameters,
+        body: LabelToJSON(requestParameters["label"]),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => LabelFromJSON(jsonValue));
   }

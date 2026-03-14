@@ -65,9 +65,9 @@ export interface UpdateOneWalletAutomaticIncomeRequest {
  */
 export class WalletApi extends runtime.BaseAPI {
   /**
-   * Creates request options for archiveOneWallet without sending the request
+   * Archive one wallet by id
    */
-  async archiveOneWalletRequestOpts(requestParameters: ArchiveOneWalletRequest): Promise<runtime.RequestOpts> {
+  async archiveOneWalletRaw(requestParameters: ArchiveOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling archiveOneWallet().');
     }
@@ -84,20 +84,15 @@ export class WalletApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
 
-    return {
-      path: urlPath,
-      method: "POST",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Archive one wallet by id
-   */
-  async archiveOneWalletRaw(requestParameters: ArchiveOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
-    const requestOptions = await this.archiveOneWalletRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => WalletFromJSON(jsonValue));
   }
@@ -111,9 +106,9 @@ export class WalletApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for createOneWallet without sending the request
+   * Create new wallet for the specified account
    */
-  async createOneWalletRequestOpts(requestParameters: CreateOneWalletRequest): Promise<runtime.RequestOpts> {
+  async createOneWalletRaw(requestParameters: CreateOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling createOneWallet().');
     }
@@ -127,21 +122,16 @@ export class WalletApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/wallet`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    return {
-      path: urlPath,
-      method: "POST",
-      headers: headerParameters,
-      query: queryParameters,
-      body: CreationWalletToJSON(requestParameters["creationWallet"]),
-    };
-  }
-
-  /**
-   * Create new wallet for the specified account
-   */
-  async createOneWalletRaw(requestParameters: CreateOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
-    const requestOptions = await this.createOneWalletRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreationWalletToJSON(requestParameters["creationWallet"]),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => WalletFromJSON(jsonValue));
   }
@@ -155,9 +145,12 @@ export class WalletApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getAllWallets without sending the request
+   * Get all disponibles wallet for the specified account
    */
-  async getAllWalletsRequestOpts(requestParameters: GetAllWalletsRequest): Promise<runtime.RequestOpts> {
+  async getAllWalletsRaw(
+    requestParameters: GetAllWalletsRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<GetAllWallets200Response>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getAllWallets().');
     }
@@ -181,23 +174,15 @@ export class WalletApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/wallet`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    return {
-      path: urlPath,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Get all disponibles wallet for the specified account
-   */
-  async getAllWalletsRaw(
-    requestParameters: GetAllWalletsRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<GetAllWallets200Response>> {
-    const requestOptions = await this.getAllWalletsRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => GetAllWallets200ResponseFromJSON(jsonValue));
   }
@@ -211,9 +196,9 @@ export class WalletApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getOneWallet without sending the request
+   * Get get one wallet by id for the specified account
    */
-  async getOneWalletRequestOpts(requestParameters: GetOneWalletRequest): Promise<runtime.RequestOpts> {
+  async getOneWalletRaw(requestParameters: GetOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getOneWallet().');
     }
@@ -230,20 +215,15 @@ export class WalletApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
 
-    return {
-      path: urlPath,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Get get one wallet by id for the specified account
-   */
-  async getOneWalletRaw(requestParameters: GetOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
-    const requestOptions = await this.getOneWalletRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => WalletFromJSON(jsonValue));
   }
@@ -257,9 +237,9 @@ export class WalletApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for updateOneWallet without sending the request
+   * Update one wallet by id for the specified account
    */
-  async updateOneWalletRequestOpts(requestParameters: UpdateOneWalletRequest): Promise<runtime.RequestOpts> {
+  async updateOneWalletRaw(requestParameters: UpdateOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling updateOneWallet().');
     }
@@ -278,21 +258,16 @@ export class WalletApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
 
-    return {
-      path: urlPath,
-      method: "PUT",
-      headers: headerParameters,
-      query: queryParameters,
-      body: UpdateWalletToJSON(requestParameters["updateWallet"]),
-    };
-  }
-
-  /**
-   * Update one wallet by id for the specified account
-   */
-  async updateOneWalletRaw(requestParameters: UpdateOneWalletRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Wallet>> {
-    const requestOptions = await this.updateOneWalletRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "PUT",
+        headers: headerParameters,
+        query: queryParameters,
+        body: UpdateWalletToJSON(requestParameters["updateWallet"]),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => WalletFromJSON(jsonValue));
   }
@@ -306,9 +281,12 @@ export class WalletApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for updateOneWalletAutomaticIncome without sending the request
+   * Update one wallet automatic income by walletId and accountId
    */
-  async updateOneWalletAutomaticIncomeRequestOpts(requestParameters: UpdateOneWalletAutomaticIncomeRequest): Promise<runtime.RequestOpts> {
+  async updateOneWalletAutomaticIncomeRaw(
+    requestParameters: UpdateOneWalletAutomaticIncomeRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<Wallet>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling updateOneWalletAutomaticIncome().');
     }
@@ -327,24 +305,16 @@ export class WalletApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
 
-    return {
-      path: urlPath,
-      method: "PUT",
-      headers: headerParameters,
-      query: queryParameters,
-      body: WalletAutomaticIncomeToJSON(requestParameters["walletAutomaticIncome"]),
-    };
-  }
-
-  /**
-   * Update one wallet automatic income by walletId and accountId
-   */
-  async updateOneWalletAutomaticIncomeRaw(
-    requestParameters: UpdateOneWalletAutomaticIncomeRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<Wallet>> {
-    const requestOptions = await this.updateOneWalletAutomaticIncomeRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "PUT",
+        headers: headerParameters,
+        query: queryParameters,
+        body: WalletAutomaticIncomeToJSON(requestParameters["walletAutomaticIncome"]),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => WalletFromJSON(jsonValue));
   }

@@ -33,7 +33,7 @@ export interface CreationWallet {
   description?: string | null;
   /**
    *
-   * @type {CreationWalletTypeEnum}
+   * @type {string}
    * @memberof CreationWallet
    */
   type: CreationWalletTypeEnum;

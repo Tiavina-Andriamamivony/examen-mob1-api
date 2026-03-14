@@ -58,9 +58,9 @@ export interface UpdateOneGoalRequest {
  */
 export class GoalApi extends runtime.BaseAPI {
   /**
-   * Creates request options for archiveOneGoal without sending the request
+   * Archive one label by id
    */
-  async archiveOneGoalRequestOpts(requestParameters: ArchiveOneGoalRequest): Promise<runtime.RequestOpts> {
+  async archiveOneGoalRaw(requestParameters: ArchiveOneGoalRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Goal>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling archiveOneGoal().');
     }
@@ -82,20 +82,15 @@ export class GoalApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"labelId"}}`, encodeURIComponent(String(requestParameters["labelId"])));
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
 
-    return {
-      path: urlPath,
-      method: "POST",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Archive one label by id
-   */
-  async archiveOneGoalRaw(requestParameters: ArchiveOneGoalRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Goal>> {
-    const requestOptions = await this.archiveOneGoalRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => GoalFromJSON(jsonValue));
   }
@@ -109,9 +104,12 @@ export class GoalApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for createOneGoal without sending the request
+   * create new goal for one account
    */
-  async createOneGoalRequestOpts(requestParameters: CreateOneGoalRequest): Promise<runtime.RequestOpts> {
+  async createOneGoalRaw(
+    requestParameters: CreateOneGoalRequest,
+    initOverrides?: RequestInit | runtime.InitOverrideFunction,
+  ): Promise<runtime.ApiResponse<GetAllGoals200Response>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling createOneGoal().');
     }
@@ -130,24 +128,16 @@ export class GoalApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
 
-    return {
-      path: urlPath,
-      method: "POST",
-      headers: headerParameters,
-      query: queryParameters,
-      body: CreationGoalToJSON(requestParameters["creationGoal"]),
-    };
-  }
-
-  /**
-   * create new goal for one account
-   */
-  async createOneGoalRaw(
-    requestParameters: CreateOneGoalRequest,
-    initOverrides?: RequestInit | runtime.InitOverrideFunction,
-  ): Promise<runtime.ApiResponse<GetAllGoals200Response>> {
-    const requestOptions = await this.createOneGoalRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "POST",
+        headers: headerParameters,
+        query: queryParameters,
+        body: CreationGoalToJSON(requestParameters["creationGoal"]),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => GetAllGoals200ResponseFromJSON(jsonValue));
   }
@@ -161,9 +151,9 @@ export class GoalApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getAllGoals without sending the request
+   * Get all disponibles goal of one account
    */
-  async getAllGoalsRequestOpts(requestParameters: GetAllGoalsRequest): Promise<runtime.RequestOpts> {
+  async getAllGoalsRaw(requestParameters: GetAllGoalsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAllGoals200Response>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getAllGoals().');
     }
@@ -211,20 +201,15 @@ export class GoalApi extends runtime.BaseAPI {
     let urlPath = `/account/{accountId}/goal`;
     urlPath = urlPath.replace(`{${"accountId"}}`, encodeURIComponent(String(requestParameters["accountId"])));
 
-    return {
-      path: urlPath,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Get all disponibles goal of one account
-   */
-  async getAllGoalsRaw(requestParameters: GetAllGoalsRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<GetAllGoals200Response>> {
-    const requestOptions = await this.getAllGoalsRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => GetAllGoals200ResponseFromJSON(jsonValue));
   }
@@ -238,9 +223,9 @@ export class GoalApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for getOneGoal without sending the request
+   * Get one goal of one account by it\'s id
    */
-  async getOneGoalRequestOpts(requestParameters: GetOneGoalRequest): Promise<runtime.RequestOpts> {
+  async getOneGoalRaw(requestParameters: GetOneGoalRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Goal>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling getOneGoal().');
     }
@@ -262,20 +247,15 @@ export class GoalApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
     urlPath = urlPath.replace(`{${"goalId"}}`, encodeURIComponent(String(requestParameters["goalId"])));
 
-    return {
-      path: urlPath,
-      method: "GET",
-      headers: headerParameters,
-      query: queryParameters,
-    };
-  }
-
-  /**
-   * Get one goal of one account by it\'s id
-   */
-  async getOneGoalRaw(requestParameters: GetOneGoalRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Goal>> {
-    const requestOptions = await this.getOneGoalRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "GET",
+        headers: headerParameters,
+        query: queryParameters,
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => GoalFromJSON(jsonValue));
   }
@@ -289,9 +269,9 @@ export class GoalApi extends runtime.BaseAPI {
   }
 
   /**
-   * Creates request options for updateOneGoal without sending the request
+   * update one goal of one account
    */
-  async updateOneGoalRequestOpts(requestParameters: UpdateOneGoalRequest): Promise<runtime.RequestOpts> {
+  async updateOneGoalRaw(requestParameters: UpdateOneGoalRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Goal>> {
     if (requestParameters["accountId"] == null) {
       throw new runtime.RequiredError("accountId", 'Required parameter "accountId" was null or undefined when calling updateOneGoal().');
     }
@@ -315,21 +295,16 @@ export class GoalApi extends runtime.BaseAPI {
     urlPath = urlPath.replace(`{${"walletId"}}`, encodeURIComponent(String(requestParameters["walletId"])));
     urlPath = urlPath.replace(`{${"goalId"}}`, encodeURIComponent(String(requestParameters["goalId"])));
 
-    return {
-      path: urlPath,
-      method: "PUT",
-      headers: headerParameters,
-      query: queryParameters,
-      body: GoalToJSON(requestParameters["goal"]),
-    };
-  }
-
-  /**
-   * update one goal of one account
-   */
-  async updateOneGoalRaw(requestParameters: UpdateOneGoalRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<Goal>> {
-    const requestOptions = await this.updateOneGoalRequestOpts(requestParameters);
-    const response = await this.request(requestOptions, initOverrides);
+    const response = await this.request(
+      {
+        path: urlPath,
+        method: "PUT",
+        headers: headerParameters,
+        query: queryParameters,
+        body: GoalToJSON(requestParameters["goal"]),
+      },
+      initOverrides,
+    );
 
     return new runtime.JSONApiResponse(response, (jsonValue) => GoalFromJSON(jsonValue));
   }

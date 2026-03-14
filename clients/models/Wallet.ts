@@ -47,7 +47,7 @@ export interface Wallet {
   description?: string | null;
   /**
    *
-   * @type {WalletTypeEnum}
+   * @type {string}
    * @memberof Wallet
    */
   type?: WalletTypeEnum;
