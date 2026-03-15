@@ -10,9 +10,13 @@ const log = createLogger("WalletController");
 export class WalletController {
   static readonly create = handler(async ({ req, accountId }) => {
     log.info(`Creating wallet for account=${accountId}`);
+    log.info(`Wallet creation request body:`, req.body);
 
     WalletValidator.create(req.body);
+    log.info(`Wallet validation passed`);
+
     const data = await WalletServices.create(accountId, req.body);
+    log.info(`Wallet service creation completed`);
 
     return WalletMapper.toRest(data);
   });

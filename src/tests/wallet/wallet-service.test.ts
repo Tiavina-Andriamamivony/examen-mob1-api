@@ -18,6 +18,9 @@ vi.mock("@/mappers", () => ({
 }));
 
 const mockDb = {
+  account: {
+    findUnique: vi.fn(),
+  },
   wallet: {
     findFirst: vi.fn(),
     create: vi.fn(),
@@ -31,6 +34,10 @@ const mockDb = {
 beforeEach(() => {
   vi.clearAllMocks();
   vi.mocked(getPrismaClient).mockReturnValue(mockDb as any);
+
+  // Default mock implementations
+  mockDb.account.findUnique.mockResolvedValue({ id: ACCOUNT_ID }); // Account exists by default
+  mockDb.wallet.findFirst.mockResolvedValue(null); // No duplicate wallet by default
 });
 
 describe("WalletServices", () => {

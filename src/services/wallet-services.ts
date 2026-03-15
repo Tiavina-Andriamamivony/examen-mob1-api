@@ -14,11 +14,41 @@ const db = () => getPrismaClient();
 export class WalletServices {
   static async create(accountId: string, wallet: CreationWallet) {
     log.info(`Creating wallet name=${wallet.name} for account=${accountId}`);
+    log.info(`Wallet details:`, { wallet });
 
+    // Check if account exists
+    log.info(`Checking if account exists: ${accountId}`);
+    const accountExists = await db().account.findUnique({ where: { id: accountId } });
+    if (!accountExists) {
+      log.error(`Account not found: ${accountId}`);
+      throw new NotFoundError(`Account with id=${accountId} not found`);
+    }
+    log.info(`Account exists:`, accountExists);
+
+    // Check for duplicate wallet name
+    log.info(`Checking for duplicate wallet name: ${wallet.name} for account: ${accountId}`);
     const existing = await db().wallet.findFirst({ where: { name: wallet.name, accountId } });
-    if (existing) throw new BadRequestError(`Wallet with name=${wallet.name} already exists`);
+    if (existing) {
+      log.error(`Wallet with name already exists: ${wallet.name} for account: ${accountId}`);
+      throw new BadRequestError(`Wallet with name=${wallet.name} already exists`);
+    }
+    log.info(`No duplicate wallet found`);
 
-    return db().wallet.create({ data: WalletMapper.create(accountId, wallet) });
+    // Map wallet data
+    log.info(`Mapping wallet data for Prisma`);
+    const walletData = WalletMapper.create(accountId, wallet);
+    log.info(`Mapped wallet data:`, walletData);
+
+    // Create wallet
+    log.info(`Creating wallet in database`);
+    try {
+      const result = await db().wallet.create({ data: walletData });
+      log.info(`Wallet created successfully:`, result);
+      return result;
+    } catch (error) {
+      log.error(`Failed to create wallet:`, error);
+      throw error;
+    }
   }
 
   static async update(accountId: string, wallet: UpdateWallet) {

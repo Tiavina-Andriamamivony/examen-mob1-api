@@ -4,6 +4,9 @@ import { v4 } from "uuid";
 
 import { PrismaPaginationInfo } from "@/types";
 import { calculatePagination } from "@/utilities";
+import { createLogger } from "@/utilities/logger";
+
+const log = createLogger("WalletMapper");
 
 export class WalletMapper {
   static toRest(wallet: PrismaWallet): RestWallet {
@@ -26,7 +29,9 @@ export class WalletMapper {
   }
 
   static create(accountId: string, wallet: RestWallet): PrismaWallet {
-    return {
+    log.info(`Mapping wallet to Prisma format:`, { accountId, wallet });
+
+    const result = {
       id: v4(),
       accountId,
       name: wallet.name ?? "",
@@ -42,6 +47,9 @@ export class WalletMapper {
       automaticIncomeDay: 1,
       createdAt: new Date(),
     } as PrismaWallet;
+
+    log.info(`Mapped wallet data:`, result);
+    return result;
   }
 
   static update(accountId: string, wallet: RestWallet): Partial<PrismaWallet> {
