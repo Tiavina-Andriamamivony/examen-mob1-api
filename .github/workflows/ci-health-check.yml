@@ -1,0 +1,20 @@
+name: CI - Health Check
+
+on:
+  schedule:
+    - cron: "*/10 * * * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call Ping Endpoint
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" examen-mob1-api-jp85.onrender.com/ping)
+          if [ "$STATUS" -ne 200 ]; then
+            echo "Ping failed with status $STATUS"
+            exit 1
+          else
+            echo "Ping OK"
+          fi

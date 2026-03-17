@@ -5,6 +5,10 @@ import { errorHandler, requestLogger, securityHandler } from "@/middlewares";
 import { authRouter, goalListRouter, goalRouter, labelRouter, projectRouter, swaggerRouter, transactionListRouter, transactionRouter } from "@/routes";
 
 import { walletRouter } from "./routes/wallet-routes";
+import { pong } from "@/controllers/ping-pong.controller";
+
+const pingRouter = express.Router();
+pingRouter.get("/ping", pong);
 
 export const server = async () => {
   try {
@@ -14,6 +18,8 @@ export const server = async () => {
     app.use(requestLogger);
     app.use(express.json());
     app.use(cors());
+
+    app.use(pingRouter);
 
     app.use("/auth", authRouter);
 
